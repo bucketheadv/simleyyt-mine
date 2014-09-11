@@ -30,7 +30,7 @@ contact :
 # Links showed on the footer
 #
 links :
-  Sven's Blog : http://simpleyyt.github.io/
+  Sven's Blog : http://sven199109.github.io/
 
 # The search engine. Only support google custom search engine.
 #
@@ -74,7 +74,7 @@ url : http://localhost
 # Else if you are pushing to username.github.io, replace with your username.
 # Finally if you are pushing to a GitHub project page, include the project name at the end.
 #
-production_url : http://simpleyyt.github.io
+production_url : http://sven199109.github.io
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
