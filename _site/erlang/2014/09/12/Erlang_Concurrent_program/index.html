@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	
-	<title>Tags</title>
+	<title>Erlang的并发编程</title>
     
 	
 	<meta name="author" content="Sven Liu">
@@ -104,11 +104,7 @@
 				
 				  
 					
-					<li  id = "Tags" class="active">
-					<span class="nav-l-active"></span>
-					<a href="/tags.html" class="active">Tags</a>
-					<span class="nav-r-active"></span>
-					</li>
+					<li id = "Tags"><a href="/tags.html">Tags</a></li>
 					
 				  
 				
@@ -134,16 +130,46 @@
 </nav>
 			<div id="page-content">
 				
-<div class="page-title-inline">
-	<h1>Tags 
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
+
+<a href="/categories.html#erlang-ref" title="erlang">
+	erlang
+
+</a>
 </div>
-<div class="cont932">
-	<hr style="margin-top: 0;">
-	<div class="contentarea">
-		<div class="ca-center ca-center20t nobg">
-			<div class="journal-tags" id="teaminfo">
-			  
-			  
+				
+				</div>
+			</div>
+			<div class="journal-body">
+				<h1 class="journal-title">Erlang的并发编程<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<h1 id="spawn">使用spawn分裂进程</h1>
+<p>例如：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">demo</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">start</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
+<span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">spawn</span><span class="p">(</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,</span><span class="n">loop</span><span class="p">,[]).</span>
+<span class="nf">loop</span><span class="p">()</span> <span class="o">-&gt;</span>
+	<span class="k">receive</span>
+	<span class="k">end</span><span class="p">.</span></code></pre></div>
+
+<p>其中?MODULE是一个宏，表示当前模块名，即当前文件名(不含文件拓展名)。</p>
+
+
+				</span>
+				<div class="journal-date">Published 12 September 2014</div>
+				<div class="journal-tags">
+				
+				
 	 
 		<a class="tag-cont" href="/tags.html#Erlang-ref">
 			<div class="tag-l"></div>
@@ -157,66 +183,42 @@
 			<div class="tag-r"></div>
 		</a>
 	
- 
 
 
+
+				</div>
 			</div>
-			<div class="clearboth"></div>
-			<hr>
-			<div>
-			 
-			<div  class="team-member">
-			  <h2 id="Erlang-ref">Erlang</h2>
-			  <ul>
-				 
-				
-
-
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/09/12/Erlang_Concurrent_program">Erlang的并发编程</a></li>
-      	
-      
-    
-  
-
-
-
-			  </ul>
-			</div>
-			 
-			<div  class="team-member">
-			  <h2 id="Concurrent-ref">Concurrent</h2>
-			  <ul>
-				 
-				
-
-
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/09/12/Erlang_Concurrent_program">Erlang的并发编程</a></li>
-      	
-      
-    
-  
-
-
-
-			  </ul>
-			</div>
-			
-			</div>
-			<div class="clearboth"></div>
 		</div>
+		<div class="clearboth"></div>
 	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/erlang/2014/09/12/Erlang_Concurrent_program"  data-title="Erlang的并发编程 - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
 	<div class="clearboth"></div>
 </div>
-<div class="clearboth"></div>
-
 
 			</div>
 			<div class="clearboth pagebottom"></div>
@@ -307,7 +309,7 @@
     
       
       	
-      	<li class="active"><a href="/tags.html" class="active">Tags</a></li>
+      	<li><a href="/tags.html">Tags</a></li>
       	
       
     

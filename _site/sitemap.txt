@@ -9,24 +9,5 @@ http://simpleyyt.github.io/rss.xml
 http://simpleyyt.github.io/search.html
 http://simpleyyt.github.io/sitemap.txt
 http://simpleyyt.github.io/tags.html
-http://simpleyyt.github.io/2/index.html
-http://simpleyyt.github.io/3/index.html
-http://simpleyyt.github.io/4/index.html
 
-http://simpleyyt.github.io/openwrt/2014/09/09/helloworld_on_openwrt
-http://simpleyyt.github.io/erlang/2014/09/09/Erlang_Concurrent_program
-http://simpleyyt.github.io/openwrt/2014/08/11/helloworld_on_openwrt
-http://simpleyyt.github.io/openwrt/2014/08/11/error_on_compiling_openwrt
-http://simpleyyt.github.io/openwrt/2014/08/10/compile_openwrt
-http://simpleyyt.github.io/vocore/2014/08/06/first_start_of_vocore
-http://simpleyyt.github.io/daily/2014/08/04/paginate_and_excerpt_on_jekyll
-http://simpleyyt.github.io/vocore/2014/07/31/failed_on_first_start_of_vocore
-http://simpleyyt.github.io/vocore/2014/07/30/get_vocore
-http://simpleyyt.github.io/daily/2014/07/26/pagination_on_jekyll
-http://simpleyyt.github.io/daily/2014/04/28/win8_1_open_directory_problem
-http://simpleyyt.github.io/embedded/2014/04/20/Marvell88W8686_SPI_Interface
-http://simpleyyt.github.io/daily/2014/04/18/delete_document_on_kindle_cloud
-http://simpleyyt.github.io/linux/2014/04/16/sk_buff_analysis
-http://simpleyyt.github.io/linux/2014/04/15/qf9700_for_linux_3.0.8
-http://simpleyyt.github.io/embedded/2014/04/14/marvel_88w8686_wifi_linux_driver_analysis
-http://simpleyyt.github.io/android/2012/11/24/c_on_android
+http://simpleyyt.github.io/erlang/2014/09/12/Erlang_Concurrent_program
