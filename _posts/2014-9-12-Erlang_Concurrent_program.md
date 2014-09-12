@@ -6,6 +6,9 @@ tagline: by Sven
 tags: [Erlang,Concurrent]
 ---
 
+最近工作比较忙，以致没有太多时间自由分配来学习，好在Erlang的进度并没有落下。
+
+<!--more-->
 ##使用spawn分裂进程 
 Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程，每个进程都是一个
 独立运行的虚拟机，进程之间通过'消息'来进行通信，发送消息的格式为` Pid ! Message`,

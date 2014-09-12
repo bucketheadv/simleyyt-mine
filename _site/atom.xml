@@ -4,7 +4,7 @@
  <title>斯文的个人小站</title>
  <link href="http://sven199109.github.io/" rel="self"/>
  <link href="http://sven199109.github.io"/>
- <updated>2014-09-13T00:08:39+08:00</updated>
+ <updated>2014-09-13T00:21:26+08:00</updated>
  <id>http://sven199109.github.io</id>
  <author>
    <name>Sven Liu</name>
@@ -17,10 +17,14 @@
    <link href="http://sven199109.github.io/git/2014/09/13/git_use_method"/>
    <updated>2014-09-13T00:00:00+08:00</updated>
    <id>http://sven199109.github.io/git/2014/09/13/git_use_method</id>
-   <content type="html">&lt;h2 id=&quot;github&quot;&gt;使用Github提交代码&lt;/h2&gt;
+   <content type="html">&lt;p&gt;Git的使用方法都快忘得差不多了，写点东西来记录一下，没事儿的时候翻翻也容易~&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;github&quot;&gt;使用Github提交代码&lt;/h2&gt;
 &lt;p&gt;作为一名程序员，与git打交道是常有的事儿了，虽然公司里一直在使用svn，但感觉
 跟git比还是差了那么些，至于好在哪儿就不多提了，各人有各人喜好，适合自己
-的才是是好的。最近由于使用svn较多，也很少有时间来做自己的项目，导致许多git
+的才是是好的。最近由于使用svn较多，也很少有时间来做自己的事儿，导致许多git
 的使用方法越来越陌生，特在此记录一些常用的操作，具体的git使用方法还是得
 去查看官方文档。&lt;/p&gt;
 
@@ -112,6 +116,9 @@ git push是直接覆盖，貌似不会合并文件，也就是说不会有覆盖
 
 &lt;h4 id=&quot;git-fetch&quot;&gt;git fetch&lt;/h4&gt;
 &lt;p&gt;从远程库中下载代码，不会自动merge，比git pull安全。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;差不多就是以上这些了，其他的暂时也用不上。好好学习，好好工作！每天都要 给自己正能量~
+&lt;/code&gt;&lt;/pre&gt;
 </content>
  </entry>
  
@@ -120,8 +127,11 @@ git push是直接覆盖，貌似不会合并文件，也就是说不会有覆盖
    <link href="http://sven199109.github.io/erlang/2014/09/12/Erlang_Concurrent_program"/>
    <updated>2014-09-12T00:00:00+08:00</updated>
    <id>http://sven199109.github.io/erlang/2014/09/12/Erlang_Concurrent_program</id>
-   <content type="html">&lt;h2 id=&quot;spawn&quot;&gt;使用spawn分裂进程&lt;/h2&gt;
-&lt;p&gt;Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程，每个进程都是一个
+   <content type="html">&lt;p&gt;最近工作比较忙，以致没有太多时间自由分配来学习，好在Erlang的进度并没有落下。&lt;/p&gt;
+
+&lt;!--more--&gt;
+&lt;p&gt;##使用spawn分裂进程 
+Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程，每个进程都是一个
 独立运行的虚拟机，进程之间通过’消息’来进行通信，发送消息的格式为&lt;code&gt; Pid ! Message&lt;/code&gt;,
 表示向进程ID为Pid的进程发送一个消息Message。
 例如：&lt;/p&gt;
