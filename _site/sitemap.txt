@@ -10,4 +10,5 @@ http://sven199109.github.io/search.html
 http://sven199109.github.io/sitemap.txt
 http://sven199109.github.io/tags.html
 
+http://sven199109.github.io/git/2014/09/13/git_use_method
 http://sven199109.github.io/erlang/2014/09/12/Erlang_Concurrent_program

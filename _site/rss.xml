@@ -5,10 +5,113 @@
         <description>斯文的个人小站 - Sven Liu</description>
         <link>http://sven199109.github.io</link>
         <link>http://sven199109.github.io</link>
-        <lastBuildDate>2014-09-12T22:42:27+08:00</lastBuildDate>
-        <pubDate>2014-09-12T22:42:27+08:00</pubDate>
+        <lastBuildDate>2014-09-13T00:08:39+08:00</lastBuildDate>
+        <pubDate>2014-09-13T00:08:39+08:00</pubDate>
         <ttl>1800</ttl>
 
+
+        <item>
+                <title>Git那些事儿</title>
+                <description>&lt;h2 id=&quot;github&quot;&gt;使用Github提交代码&lt;/h2&gt;
+&lt;p&gt;作为一名程序员，与git打交道是常有的事儿了，虽然公司里一直在使用svn，但感觉
+跟git比还是差了那么些，至于好在哪儿就不多提了，各人有各人喜好，适合自己
+的才是是好的。最近由于使用svn较多，也很少有时间来做自己的项目，导致许多git
+的使用方法越来越陌生，特在此记录一些常用的操作，具体的git使用方法还是得
+去查看官方文档。&lt;/p&gt;
+
+&lt;p&gt;个人还是喜欢git提交到github的方式来管理，gitolite什么的也实在没时间去折腾，
+要使用git + github，首先还是安装git的客户端，windows下直接下载exe安装，
+&lt;a href=&quot;http://git-scm.com/download/&quot; title=&quot;git客户端下载&quot;&gt;点击此处&lt;/a&gt;进行下载。linux用户
+使用apt-get install git或yum install git或其他(根据实际情况)命令进行安装。&lt;/p&gt;
+
+&lt;h3 id=&quot;git&quot;&gt;git初始化配置和首次提交&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Your Name&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;--&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;you&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;yourdomain&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;com&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#然后进入你的工作目录&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;  &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示你要提交的文件名&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;表示提交当前目录下所有文件和文件夹。&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;commit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;first commit&amp;quot;&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;括号内一般填写本次提交的内容概述&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;remote&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;origin&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;https&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//github.com/yourgitaccount/yourreposity.git # yourgitaccount为你的github帐号,yourreposity为你在github创建的仓库名&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;git&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;push&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;origin&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;master&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;将提交的修改上传到&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;github&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;值得注意的是，现在github在push时可能会出现&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;error: The requested URL returned error: 403 while accessing https://github.com/amonest/python-scripts.git/info/refs
+fatal: HTTP request failed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样的错误，此时需要执行以下命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git remote set-url origin https://yougithubaccount@github.com/yourgithubaccount/yourreposity.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;其中yourgithubaccount和yourreposity分别为你的github帐号和仓库名，执行完毕后，顺利push。&lt;/p&gt;
+
+&lt;p&gt;每次修改或添加新文件需要提交时，都需要执行一次命令4~5，尤其是5经常容易
+被忽略，命令6~7仅需上传到github上时需要执行。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;本地操作的基本命令&lt;/h3&gt;
+
+&lt;h4 id=&quot;git-init&quot;&gt;git init&lt;/h4&gt;
+&lt;p&gt;除了&lt;code&gt;git init&lt;/code&gt;之外，还可以使用&lt;code&gt;git init-db&lt;/code&gt;来创建一个空的git库。一般来
+说，当你第一次提交一个项目时才需要在项目的根目录下执行此命令，执行后会
+产生一个&lt;code&gt;.git&lt;/code&gt;的子目录，所有文件变化信息都在保存在此目录下。其中&lt;code&gt;.git&lt;/code&gt;
+目录下有一个config文件，可以修改其中的配置。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-add&quot;&gt;git add&lt;/h4&gt;
+&lt;p&gt;将当前目录下的更改或者新增文件添加到git索引中，提交前必须先执行它。
+&lt;code&gt;git add dir&lt;/code&gt;表示添加一个目录，包括其下的所有子目录和文件,&lt;code&gt;git add f1 f2&lt;/code&gt;
+添加f1、f2两个文件到索引中，&lt;code&gt;git add .&lt;/code&gt;添加当前目录下所有文件和文件夹。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-rm&quot;&gt;git rm&lt;/h4&gt;
+&lt;p&gt;从当前工作目录中和索引中删除文件。如果参数是一个目录，则会递归删除。
+&lt;code&gt;git rm -r *&lt;/code&gt;删除该目录下所有,&lt;code&gt;git rm f1&lt;/code&gt;,删除文件f1,包括本地文件和索引
+文件，&lt;code&gt;git rm --cached f1&lt;/code&gt;，只从索引中删除f1。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-commit&quot;&gt;git commit&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;git commit -m &quot;notes&quot;&lt;/code&gt;,notes表示的是注释。也可以使用&lt;code&gt;-a&lt;/code&gt;参数来强行提交
+，用于将没有通过git add标识的变化一并提交，通常不使用这个参数。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-checkout&quot;&gt;git checkout&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;git checkout -b name&lt;/code&gt;，用于创建分支，name表示分支名。分支上的工作完成
+后使用&lt;code&gt;git checkout master&lt;/code&gt;回到主分支，在确定分支上的工作无误后可以通
+过&lt;code&gt;git merge master name&lt;/code&gt;将分支名为name的分支合并到主分支master上。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-branch&quot;&gt;git branch&lt;/h4&gt;
+&lt;p&gt;使用&lt;code&gt;git branch -D name&lt;/code&gt;删除分支名为name的分支。使用&lt;code&gt;git branch name&lt;/code&gt;
+创建分支，但此时不会切换分支，要想在创建分支时切换，使用&lt;code&gt;git checkout -b name&lt;/code&gt;方式创建分支。
+&lt;code&gt;git branch&lt;/code&gt;可以列出本地git库中所有分支，*表示当前分支。&lt;code&gt;git branch -r&lt;/code&gt;
+列出服务器git库所有分支。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-mv&quot;&gt;git mv&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;git mv a.erl b.erl&lt;/code&gt;将a.erl重命名为b.erl。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-diff&quot;&gt;git diff&lt;/h4&gt;
+&lt;p&gt;将本地代码和索引代码作比较，或将索引代码和仓库代码作比较。
+&lt;code&gt;git diff&lt;/code&gt;比较工作目录和索引中的代码，&lt;code&gt;git diff --cached&lt;/code&gt;比较索引和本地仓库中的代码。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-config&quot;&gt;git config&lt;/h4&gt;
+&lt;p&gt;用于新增和修改git的设置，比如先前的设置user.name和user.email。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-tag&quot;&gt;git tag&lt;/h4&gt;
+&lt;p&gt;关于标签的操作，本人也不是很熟悉。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-clone&quot;&gt;git clone&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;git clone https://github.com/account/reposity.git&lt;/code&gt;从github上下载远程的
+git库。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-push--git-pull&quot;&gt;git push &amp;amp; git pull&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;git push origin master&lt;/code&gt;将本地origin分支提交到远程库上的master分支。
+git push是直接覆盖，貌似不会合并文件，也就是说不会有覆盖提示。
+&lt;code&gt;git pull&lt;/code&gt;则是将远程库更新到本地库中。&lt;/p&gt;
+
+&lt;h4 id=&quot;git-fetch&quot;&gt;git fetch&lt;/h4&gt;
+&lt;p&gt;从远程库中下载代码，不会自动merge，比git pull安全。&lt;/p&gt;
+</description>
+                <link>http://sven199109.github.io/git/2014/09/13/git_use_method</link>
+                <guid>http://sven199109.github.io/git/2014/09/13/git_use_method</guid>
+                <pubDate>2014-09-13T00:00:00+08:00</pubDate>
+        </item>
 
         <item>
                 <title>Erlang的并发编程</title>
