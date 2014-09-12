@@ -11,7 +11,7 @@ Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程
 独立运行的虚拟机，进程之间通过'消息'来进行通信，发送消息的格式为` Pid ! Message`,
 表示向进程ID为Pid的进程发送一个消息Message。
 例如：
-{% highlight erlang %}
+{% highlight erlang linenos %}
 -module(demo).
 -export([start/0,area/2]).
 start() -> spawn(?MODULE,loop,[]).
@@ -52,7 +52,7 @@ loop() ->
 ##上例代码的改进
 由于loop函数中并没有发送给发送进程(客户端)自己的Pid,因此客户端会接收所有的消息，当代码趋于复杂时会不利于调试，因此
 我们可以尝试让服务器将自己的Pid发送给客户端，以区别是否是服务器返回的消息异或是其他客户端进程发送的消息，修改后的loop函数如下：
-{% highlight erlang %}
+{% highlight erlang linenos %}
 loop() ->
 	receive
 		{From,{rectangle,Width,Ht}} ->
@@ -74,7 +74,7 @@ loop() ->
 但由于服务器运行出现故障或网络中断导致客户端长时间不能接收到服务器返回的消息
 从而使客户端进入无限的等待。为了避免这种情况，我们可以将客户端代码加入超时处理的代码。
 例如:
-{% highlight erlang %}
+{% highlight erlang linenos %}
 -module(timeout).
 -export([flush_buffer/0,sleep/1]).
 flush_buffer() ->

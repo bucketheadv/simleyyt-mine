@@ -158,29 +158,29 @@
 表示向进程ID为Pid的进程发送一个消息Message。
 例如：</p>
 
-<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">demo</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">start</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">area</span><span class="o">/</span><span class="mi">2</span><span class="p">]).</span>
-<span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">spawn</span><span class="p">(</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,</span><span class="n">loop</span><span class="p">,[]).</span>
-<span class="nf">area</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">)</span> <span class="o">-&gt;</span>
-	<span class="n">rpc</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">).</span>
-<span class="nf">rpc</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">)</span> <span class="o">-&gt;</span>
-	<span class="nv">Pid</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="nv">Request</span><span class="p">},</span>
-	<span class="k">receive</span>
-		<span class="nv">Response</span> <span class="o">-&gt;</span>
-			<span class="nv">Response</span>
-	<span class="k">end</span><span class="p">.</span>
-<span class="nf">loop</span><span class="p">()</span> <span class="o">-&gt;</span>
-	<span class="k">receive</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">rectangle</span><span class="p">,</span><span class="nv">Width</span><span class="p">,</span><span class="nv">Ht</span><span class="p">}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="nv">Width</span> <span class="o">*</span> <span class="nv">Ht</span><span class="p">,</span>
-			<span class="n">loop</span><span class="p">();</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">circle</span><span class="p">,</span><span class="nv">R</span><span class="p">}}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span> <span class="o">*</span> <span class="nv">R</span> <span class="o">*</span> <span class="nv">R</span><span class="p">,</span>
-			<span class="n">loop</span><span class="p">();</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,</span><span class="nv">Other</span><span class="p">}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">error</span><span class="p">,</span><span class="nv">Other</span><span class="p">},</span>
-			<span class="n">loop</span><span class="p">()</span>
-	<span class="k">end</span><span class="p">.</span></code></pre></div>
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="lineno"> 1</span> <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">demo</span><span class="p">).</span>
+<span class="lineno"> 2</span> <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">start</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">area</span><span class="o">/</span><span class="mi">2</span><span class="p">]).</span>
+<span class="lineno"> 3</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">spawn</span><span class="p">(</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,</span><span class="n">loop</span><span class="p">,[]).</span>
+<span class="lineno"> 4</span> <span class="nf">area</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">)</span> <span class="o">-&gt;</span>
+<span class="lineno"> 5</span> 	<span class="n">rpc</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">).</span>
+<span class="lineno"> 6</span> <span class="nf">rpc</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,</span><span class="nv">Request</span><span class="p">)</span> <span class="o">-&gt;</span>
+<span class="lineno"> 7</span> 	<span class="nv">Pid</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="nv">Request</span><span class="p">},</span>
+<span class="lineno"> 8</span> 	<span class="k">receive</span>
+<span class="lineno"> 9</span> 		<span class="nv">Response</span> <span class="o">-&gt;</span>
+<span class="lineno">10</span> 			<span class="nv">Response</span>
+<span class="lineno">11</span> 	<span class="k">end</span><span class="p">.</span>
+<span class="lineno">12</span> <span class="nf">loop</span><span class="p">()</span> <span class="o">-&gt;</span>
+<span class="lineno">13</span> 	<span class="k">receive</span>
+<span class="lineno">14</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">rectangle</span><span class="p">,</span><span class="nv">Width</span><span class="p">,</span><span class="nv">Ht</span><span class="p">}</span> <span class="o">-&gt;</span>
+<span class="lineno">15</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="nv">Width</span> <span class="o">*</span> <span class="nv">Ht</span><span class="p">,</span>
+<span class="lineno">16</span> 			<span class="n">loop</span><span class="p">();</span>
+<span class="lineno">17</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">circle</span><span class="p">,</span><span class="nv">R</span><span class="p">}}</span> <span class="o">-&gt;</span>
+<span class="lineno">18</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span> <span class="o">*</span> <span class="nv">R</span> <span class="o">*</span> <span class="nv">R</span><span class="p">,</span>
+<span class="lineno">19</span> 			<span class="n">loop</span><span class="p">();</span>
+<span class="lineno">20</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,</span><span class="nv">Other</span><span class="p">}</span> <span class="o">-&gt;</span>
+<span class="lineno">21</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">error</span><span class="p">,</span><span class="nv">Other</span><span class="p">},</span>
+<span class="lineno">22</span> 			<span class="n">loop</span><span class="p">()</span>
+<span class="lineno">23</span> 	<span class="k">end</span><span class="p">.</span></code></pre></div>
 
 <p>其中?MODULE是一个宏，表示当前模块名，即当前文件名(不含文件拓展名，此处为demo)，loop为要创建进程的函数，[]为传入参数。
 也可以通过<code>spawn(fun demo:loop/0).</code>的方式来创建一个进程，返回值为进程ID，一般称为Pid。
@@ -193,24 +193,24 @@
 <span class="mi">4</span><span class="o">&gt;</span> <span class="nn">demo</span><span class="p">:</span><span class="nf">area</span><span class="p">(</span><span class="nv">Pid</span><span class="p">,{</span><span class="n">square</span><span class="p">,</span><span class="mi">10</span><span class="p">}).</span></code></pre></div>
 
 <p>第1行代码会返回一个进程的Pid，第2行会计算出矩形面积并返回给发送进程，第3行会计算出圆形面积返回给发送进程，第4行会报异常。
-这是由于在loop函数中没有定义与square相匹配的处理方式，因此会返回发送进程error信息，error信息的内容为<code>{square,10}</code>。</p>
+这是由于在loop函数中没有定义与square相匹配的处理方式，因此会返回发送进程error信息，error信息的内容为<code>{error,{square,10}}</code>。</p>
 
 <h2 id="section">上例代码的改进</h2>
 <p>由于loop函数中并没有发送给发送进程(客户端)自己的Pid,因此客户端会接收所有的消息，当代码趋于复杂时会不利于调试，因此
 我们可以尝试让服务器将自己的Pid发送给客户端，以区别是否是服务器返回的消息异或是其他客户端进程发送的消息，修改后的loop函数如下：</p>
 
-<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="nf">loop</span><span class="p">()</span> <span class="o">-&gt;</span>
-	<span class="k">receive</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">rectangle</span><span class="p">,</span><span class="nv">Width</span><span class="p">,</span><span class="nv">Ht</span><span class="p">}}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="nv">Width</span> <span class="o">*</span> <span class="nv">Ht</span> <span class="p">},</span>
-			<span class="n">loop</span><span class="p">();</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">circle</span><span class="p">,</span><span class="nv">R</span><span class="p">}}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="mi">3</span><span class="p">.</span><span class="mi">14159</span> <span class="o">*</span> <span class="nv">R</span> <span class="o">*</span> <span class="nv">R</span><span class="p">},</span>
-			<span class="n">loop</span><span class="p">();</span>
-		<span class="p">{</span><span class="nv">From</span><span class="p">,</span><span class="nv">Other</span><span class="p">}</span> <span class="o">-&gt;</span>
-			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),{</span><span class="n">error</span><span class="p">,</span><span class="nv">Other</span><span class="p">}},</span>
-			<span class="n">loop</span><span class="p">()</span>
-	<span class="k">end</span><span class="p">.</span></code></pre></div>
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="lineno"> 1</span> <span class="nf">loop</span><span class="p">()</span> <span class="o">-&gt;</span>
+<span class="lineno"> 2</span> 	<span class="k">receive</span>
+<span class="lineno"> 3</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">rectangle</span><span class="p">,</span><span class="nv">Width</span><span class="p">,</span><span class="nv">Ht</span><span class="p">}}</span> <span class="o">-&gt;</span>
+<span class="lineno"> 4</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="nv">Width</span> <span class="o">*</span> <span class="nv">Ht</span> <span class="p">},</span>
+<span class="lineno"> 5</span> 			<span class="n">loop</span><span class="p">();</span>
+<span class="lineno"> 6</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,{</span><span class="n">circle</span><span class="p">,</span><span class="nv">R</span><span class="p">}}</span> <span class="o">-&gt;</span>
+<span class="lineno"> 7</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),</span><span class="mi">3</span><span class="p">.</span><span class="mi">14159</span> <span class="o">*</span> <span class="nv">R</span> <span class="o">*</span> <span class="nv">R</span><span class="p">},</span>
+<span class="lineno"> 8</span> 			<span class="n">loop</span><span class="p">();</span>
+<span class="lineno"> 9</span> 		<span class="p">{</span><span class="nv">From</span><span class="p">,</span><span class="nv">Other</span><span class="p">}</span> <span class="o">-&gt;</span>
+<span class="lineno">10</span> 			<span class="nv">From</span> <span class="o">!</span> <span class="p">{</span><span class="n">self</span><span class="p">(),{</span><span class="n">error</span><span class="p">,</span><span class="nv">Other</span><span class="p">}},</span>
+<span class="lineno">11</span> 			<span class="n">loop</span><span class="p">()</span>
+<span class="lineno">12</span> 	<span class="k">end</span><span class="p">.</span></code></pre></div>
 
 <p>此处引入了self()函数，它将返回当前进程的Pid，如此一来，客户端所接收到的信息中就会包含服务器的进程ID，我们也就知道接收到的消息
 来自于哪个进程了。</p>
@@ -221,20 +221,20 @@
 从而使客户端进入无限的等待。为了避免这种情况，我们可以将客户端代码加入超时处理的代码。
 例如:</p>
 
-<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timeout</span><span class="p">).</span>
-<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">flush_buffer</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">sleep</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
-<span class="nf">flush_buffer</span><span class="p">()</span> <span class="o">-&gt;</span>
-	<span class="k">receive</span>
-		<span class="p">_</span><span class="nv">Any</span> <span class="o">-&gt;</span>
-			<span class="n">flush_buffer</span><span class="p">()</span>
-	<span class="k">after</span> <span class="mi">0</span> <span class="o">-&gt;</span>
-		<span class="n">true</span>
-	<span class="k">end</span><span class="p">.</span>
-<span class="nf">sleep</span><span class="p">(</span><span class="nv">T</span><span class="p">)</span> <span class="o">-&gt;</span>
-	<span class="k">receive</span>
-	<span class="k">after</span> <span class="nv">T</span> <span class="o">-&gt;</span>
-		<span class="n">true</span>
-	<span class="k">end</span><span class="p">.</span></code></pre></div>
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="lineno"> 1</span> <span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">timeout</span><span class="p">).</span>
+<span class="lineno"> 2</span> <span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">flush_buffer</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">sleep</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
+<span class="lineno"> 3</span> <span class="nf">flush_buffer</span><span class="p">()</span> <span class="o">-&gt;</span>
+<span class="lineno"> 4</span> 	<span class="k">receive</span>
+<span class="lineno"> 5</span> 		<span class="p">_</span><span class="nv">Any</span> <span class="o">-&gt;</span>
+<span class="lineno"> 6</span> 			<span class="n">flush_buffer</span><span class="p">()</span>
+<span class="lineno"> 7</span> 	<span class="k">after</span> <span class="mi">0</span> <span class="o">-&gt;</span>
+<span class="lineno"> 8</span> 		<span class="n">true</span>
+<span class="lineno"> 9</span> 	<span class="k">end</span><span class="p">.</span>
+<span class="lineno">10</span> <span class="nf">sleep</span><span class="p">(</span><span class="nv">T</span><span class="p">)</span> <span class="o">-&gt;</span>
+<span class="lineno">11</span> 	<span class="k">receive</span>
+<span class="lineno">12</span> 	<span class="k">after</span> <span class="nv">T</span> <span class="o">-&gt;</span>
+<span class="lineno">13</span> 		<span class="n">true</span>
+<span class="lineno">14</span> 	<span class="k">end</span><span class="p">.</span></code></pre></div>
 
 <p>在这段代码中，使用after关键字来定义一个超时，后面接一个整数代表超时的毫秒数，
 一旦超时，代码将终止执行，也意味着进程结束，此处是一个超时为0的超时，超时为0的语句
