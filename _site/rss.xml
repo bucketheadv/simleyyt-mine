@@ -5,8 +5,8 @@
         <description>斯文的个人小站 - Sven Liu</description>
         <link>http://sven199109.github.io</link>
         <link>http://sven199109.github.io</link>
-        <lastBuildDate>2014-09-13T00:21:26+08:00</lastBuildDate>
-        <pubDate>2014-09-13T00:21:26+08:00</pubDate>
+        <lastBuildDate>2014-09-14T23:08:30+08:00</lastBuildDate>
+        <pubDate>2014-09-14T23:08:30+08:00</pubDate>
         <ttl>1800</ttl>
 
 
@@ -125,8 +125,9 @@ git push是直接覆盖，貌似不会合并文件，也就是说不会有覆盖
                 <description>&lt;p&gt;最近工作比较忙，以致没有太多时间自由分配来学习，好在Erlang的进度并没有落下。&lt;/p&gt;
 
 &lt;!--more--&gt;
-&lt;p&gt;##使用spawn分裂进程 
-Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程，每个进程都是一个
+
+&lt;h2 id=&quot;spawn&quot;&gt;使用spawn分裂进程&lt;/h2&gt;
+&lt;p&gt;Erlang是一种并发型的语言，在Erlang里可以通过spawn来创建进程，每个进程都是一个
 独立运行的虚拟机，进程之间通过’消息’来进行通信，发送消息的格式为&lt;code&gt; Pid ! Message&lt;/code&gt;,
 表示向进程ID为Pid的进程发送一个消息Message。
 例如：&lt;/p&gt;
