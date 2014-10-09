@@ -5,10 +5,288 @@
         <description>斯文的个人小站 - Sven Liu</description>
         <link>http://sven199109.github.io</link>
         <link>http://sven199109.github.io</link>
-        <lastBuildDate>2014-09-14T23:08:30+08:00</lastBuildDate>
-        <pubDate>2014-09-14T23:08:30+08:00</pubDate>
+        <lastBuildDate>2014-10-06T11:34:14+08:00</lastBuildDate>
+        <pubDate>2014-10-06T11:34:14+08:00</pubDate>
         <ttl>1800</ttl>
 
+
+        <item>
+                <title>Erlang的编译和运行</title>
+                <description>&lt;p&gt;这次主要记录一下Erlang运行的几个方式以及makefile的编写。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;设置代码的搜索路径&lt;/h2&gt;
+&lt;p&gt;Erlang的运行时系统使用一种代码自动载入机制。可以通过&lt;code&gt;code:get_path()&lt;/code&gt;来查看当前载入的路径值。
+下面是两个最常用的用来操作载入路径的函数。&lt;/p&gt;
+
+&lt;h4 id=&quot;spec-codeaddpathadir--true--errorbaddirectory&quot;&gt;-spec code:add_patha(Dir) =&amp;gt; true | {error,bad_directory}&lt;/h4&gt;
+&lt;p&gt;向载入路径开头添加一个新的目录&lt;/p&gt;
+
+&lt;h4 id=&quot;spec-codeaddpathzdir--true--errorbaddirectory&quot;&gt;-spec code:add_pathz(Dir) =&amp;gt; true | {error,bad_directory}&lt;/h4&gt;
+&lt;p&gt;向载入路径末端添加一个新的目录&lt;/p&gt;
+
+&lt;p&gt;这两个函数会返回不同的结果，如果出现了载入错误模块时，可以调用&lt;code&gt;code:all_loaded()&lt;/code&gt;来查看加载模块的总列表，
+也可以通过&lt;code&gt;code:clash()&lt;/code&gt;来查看哪里出了错。&lt;/p&gt;
+
+&lt;h2 id=&quot;erlang&quot;&gt;通过命令来启动Erlang&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pa&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;Dir1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pa&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;Dir2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pz&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;DirK1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pz&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;DirK2&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这个命令的作用和&lt;code&gt;add_patha&lt;/code&gt;、&lt;code&gt;add_pathz&lt;/code&gt;作用一样，只是这里是通过shell命令来启动而已。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;运行程序的不同方式&lt;/h2&gt;
+
+&lt;h3 id=&quot;erlc-xxxerl&quot;&gt;直接使用&lt;code&gt;erlc xxx.erl&lt;/code&gt;来编译&lt;/h3&gt;
+&lt;p&gt;使用这种方式编译的最大问题是当文件数量很大时，编译的效率就显得过于低下了。&lt;/p&gt;
+
+&lt;h3 id=&quot;erlang-shellcxxxxxx&quot;&gt;在Erlang shell里使用&lt;code&gt;c(xxx)&lt;/code&gt;来编译，xxx为模块名称。&lt;/h3&gt;
+&lt;p&gt;这种方式一般在调试代码时使用，并且它是支持热更的一种重要方式。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;快速脚本编程&lt;/h3&gt;
+&lt;p&gt;使用-eval参数可以进行快速脚本编程，例如:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;eval&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;&amp;#39;io:format(&amp;quot;Memory: ~p~n&amp;quot;,[erlang:memory(total)]).&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noshell&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;shell&quot;&gt;在shell里编译和运行&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;n&quot;&gt;erlc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noshell&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hello&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这段命令的作用是首先编译hello.erl,再运行&lt;code&gt;hello:start()&lt;/code&gt;和&lt;code&gt;init:stop()&lt;/code&gt;两个函数。&lt;code&gt;noshell&lt;/code&gt;表示不开启erlang终端。&lt;/p&gt;
+
+&lt;h3 id=&quot;escript&quot;&gt;作为Escript运行&lt;/h3&gt;
+&lt;p&gt;创建一个名为&lt;code&gt;hello&lt;/code&gt;文件，在文件中输入以下代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;usr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;escript&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nn&quot;&gt;io&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Hello world&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;~n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;保存后返回终端，然后输入以下命令：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;sc&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chmod&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hello&lt;/span&gt;
+&lt;span class=&quot;sc&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hello&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;Hello&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;world&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这种情况下作为脚本解释不用编译就能直接运行，但需要注意的是要给文件添加执行权限。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;运行带命令行参数的程序&lt;/h3&gt;
+&lt;p&gt;新建一个名为fac.erl的文件，并输入以下代码:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nv&quot;&gt;I&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list_to_integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;atom_to_list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)),&lt;/span&gt;
+	&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;I&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+	&lt;span class=&quot;nn&quot;&gt;io&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;factorial &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;~w&lt;/span&gt;&lt;span class=&quot;s&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;~w~n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;I&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt;
+	&lt;span class=&quot;nn&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;然后编译并运行。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;sc&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt;
+&lt;span class=&quot;sc&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noshell&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;factorial&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;120&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;也可以将以上代码修改代码头后写成Escript脚本文件，写成脚本文件fac，运行如下:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;sc&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fac&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;factorial&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;120&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;makefile&quot;&gt;重头戏，Makefile!&lt;/h3&gt;
+&lt;p&gt;如果要编译的文件很多，编写Makefile就很有必要了。一个精简的Makefile模板如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;## 以下几行不需要改动&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;SUFFIXES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beam&lt;/span&gt; 
+
+&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;beam&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;erlc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;W&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;ERL&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;erl&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;boot&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start_clean&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;## 这里写入要编译的模块&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;MODS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;module1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;module2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;moduleN&lt;/span&gt; 
+
+&lt;span class=&quot;cp&quot;&gt;## 这里的&amp;#39;.&amp;#39;表示当前文件夹，这行的作用是运行当前文件夹下module1模块中的start函数&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;## 如果不需要运行程序，此句当省略&lt;/span&gt;
+&lt;span class=&quot;nl&quot;&gt;all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt;
+	&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ERL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pa&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;&amp;#39;.&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;module1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;## 这里的subdirs可以省略，否则与下文的subdirs对应&lt;/span&gt;
+&lt;span class=&quot;nl&quot;&gt;compile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;MODS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%=%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beam&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subdirs&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;## 如果有子文件夹，进入该子文件夹后再进行Makefile&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;## 此时子文件夹中也需要有Makefile文件&lt;/span&gt;
+&lt;span class=&quot;nl&quot;&gt;subdirs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MAKE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MAKE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;cp&quot;&gt;## 移除所有代码&lt;/span&gt;
+&lt;span class=&quot;cp&quot;&gt;## 如果子文件夹有Makefile,则也需要在子文件夹中make clean&lt;/span&gt;
+&lt;span class=&quot;nl&quot;&gt;clean&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beam&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;erl_crash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dump&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MAKE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;clean&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;详细的编写方法，都写在了注释里，无需再多花时间出来解释。&lt;/p&gt;
+
+&lt;h2 id=&quot;erlang-1&quot;&gt;如果你的Erlang崩溃了&lt;/h2&gt;
+
+&lt;h3 id=&quot;section-4&quot;&gt;阅读转储文件&lt;/h3&gt;
+&lt;p&gt;如果erlang崩溃了，会留下一个erl_crash.dump文件，此时可以启动一个Web故障分析器，
+输入以下命令：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;crashdump_viewer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;WebTool&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;available&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;localhost&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8888&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;Or&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;127&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8888&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;然后打开浏览器输入&lt;a href=&quot;http://localhost:8888&quot;&gt;http://localhost:8888&lt;/a&gt;，这样就能查看错误日志了。&lt;/p&gt;
+</description>
+                <link>http://sven199109.github.io/erlang/2014/10/06/erlang-makefile</link>
+                <guid>http://sven199109.github.io/erlang/2014/10/06/erlang-makefile</guid>
+                <pubDate>2014-10-06T00:00:00+08:00</pubDate>
+        </item>
+
+        <item>
+                <title>Erlang列表编程</title>
+                <description>&lt;p&gt;无论用什么编程，数据结构都是很重要的一部分，今天就主要写一些lists的编程。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;bif&quot;&gt;用于列表处理的BIF&lt;/h2&gt;
+&lt;p&gt;经常会用到一些内置函数来进行类型转换，常用的有以下：&lt;/p&gt;
+
+&lt;h4 id=&quot;atomtolista&quot;&gt;atom_to_list(A)&lt;/h4&gt;
+&lt;p&gt;将一个原子式L转换为一个字符列表。&lt;/p&gt;
+
+&lt;h4 id=&quot;floattolistf&quot;&gt;float_to_list(F)&lt;/h4&gt;
+&lt;p&gt;将浮点数F转换为一个字符列表。&lt;/p&gt;
+
+&lt;h4 id=&quot;integertolisti&quot;&gt;integer_to_list(I)&lt;/h4&gt;
+&lt;p&gt;将整数I转换为一个字符列表。&lt;/p&gt;
+
+&lt;h4 id=&quot;tupletolistt&quot;&gt;tuple_to_list(T)&lt;/h4&gt;
+&lt;p&gt;将一个元组T转换为列表。&lt;/p&gt;
+
+&lt;h4 id=&quot;pidtolistpid&quot;&gt;pid_to_list(Pid)&lt;/h4&gt;
+&lt;p&gt;将一个进程ID(Pid)转换为列表。&lt;/p&gt;
+
+&lt;p&gt;相应的还有list_to_atom,list_to_integer,list_to_float,list_to_tuple,list_to_Pid。&lt;/p&gt;
+
+&lt;h4 id=&quot;hdl&quot;&gt;hd(L)&lt;/h4&gt;
+&lt;p&gt;返回列表L的第一个元素。&lt;/p&gt;
+
+&lt;h4 id=&quot;tll&quot;&gt;tl(L)&lt;/h4&gt;
+&lt;p&gt;返回列表L的尾部。&lt;/p&gt;
+
+&lt;h4 id=&quot;lengthl&quot;&gt;length(L)&lt;/h4&gt;
+&lt;p&gt;返回列表L的长度。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;以上据说的`字符列表`都是ASCII的表现形式，即表示的是字符的ASCII值。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;lists&quot;&gt;常用的列表(lists)处理函数&lt;/h2&gt;
+
+&lt;h4 id=&quot;memberxl&quot;&gt;member(X,L)&lt;/h4&gt;
+&lt;p&gt;X是否是列表L的元素，是返回true,否返回false。&lt;/p&gt;
+
+&lt;h4 id=&quot;appendab&quot;&gt;append(A,B)&lt;/h4&gt;
+&lt;p&gt;连接两个列表A和B。&lt;/p&gt;
+
+&lt;h4 id=&quot;reversel&quot;&gt;reverse(L)&lt;/h4&gt;
+&lt;p&gt;将列表L元素倒序。&lt;/p&gt;
+
+&lt;h4 id=&quot;deletexl&quot;&gt;delete(X,L)&lt;/h4&gt;
+&lt;p&gt;从列表L中删除元素X并返回一个新列表。&lt;/p&gt;
+
+&lt;h2 id=&quot;sets&quot;&gt;常用的集合(sets)函数&lt;/h2&gt;
+&lt;p&gt;在Erlang中，集合是一个不包含重复元素的无序列表。
+集合的操作函数如下：&lt;/p&gt;
+
+&lt;h4 id=&quot;new&quot;&gt;new()&lt;/h4&gt;
+&lt;p&gt;返回一个空集合。&lt;/p&gt;
+
+&lt;h4 id=&quot;addelementxs&quot;&gt;add_element(X,S)&lt;/h4&gt;
+&lt;p&gt;返回将元素X并入集合S后所产生的新集合。&lt;/p&gt;
+
+&lt;h4 id=&quot;delelementxs&quot;&gt;del_element(X,S)&lt;/h4&gt;
+&lt;p&gt;返回从集合S中删除元素X后产生的新集合。&lt;/p&gt;
+
+&lt;h4 id=&quot;iselementxs&quot;&gt;is_element(X,S)&lt;/h4&gt;
+&lt;p&gt;元素X是否在集合S中，是返回true,否返回false。&lt;/p&gt;
+
+&lt;h4 id=&quot;isemptys&quot;&gt;is_empty(S)&lt;/h4&gt;
+&lt;p&gt;集合S是否为空，是返回true,否返回false。&lt;/p&gt;
+
+&lt;h4 id=&quot;intersections1s2&quot;&gt;intersection(S1,S2)&lt;/h4&gt;
+&lt;p&gt;返回S1和S2的交集。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;函数式参数&lt;/h2&gt;
+
+&lt;h3 id=&quot;map&quot;&gt;map&lt;/h3&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;函数map(Func,List)返回一个列表L，其中的元素由函数Func依次作用于List中的各个元素得到。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)];&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;[].&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;lists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;factorial&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;120&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;720&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5040&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;40320&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这段函数调用时的作用是生成参数列表中所有元素的阶乘并返回一个新列表，这里需要注意的是apply调用，
+&lt;code&gt;apply(Mod,Func,[Params])&lt;/code&gt;等同于&lt;code&gt;Mod:Func(Params)&lt;/code&gt;调用，尤其需要注意apply调用时参数里的&lt;code&gt;[]&lt;/code&gt;符号。
+还要注意，&lt;code&gt;apply({Mod,Func},[Params])&lt;/code&gt;这种形式支持在控制台下使用，但貌似并不支持在文件代码中使用，
+因此使用&lt;code&gt;{Mod,Func}&lt;/code&gt;作为参数传递时可能会遇到意想不到的错误，最好使用&lt;code&gt;fun Mod:Func/N&lt;/code&gt;的形式作为参数传递。
+&lt;code&gt;lists:map(fun(X) -&amp;gt; math:factorial(X) end,[1,2,3,4,5,6,7,8]).&lt;/code&gt;等价于&lt;code&gt;lists:map(fun math:factorial/1,[1,2,3,4,5,6,7,8]).&lt;/code&gt;。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;filter&quot;&gt;filter&lt;/h3&gt;
+&lt;p&gt;函数filter(Pred,List)对列表List中的元素进行过滤，仅保留令Pred的值为&lt;code&gt;true&lt;/code&gt;的元素。Pred是一个返回&lt;code&gt;true&lt;/code&gt;或&lt;code&gt;false&lt;/code&gt;的函数。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;nf&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; 
+		&lt;span class=&quot;n&quot;&gt;true&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+			&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)];&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;false&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+			&lt;span class=&quot;n&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(_,[])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;[].&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;lists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;even&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;上例调用用于过滤并产生一个偶数列表。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;排序算法&lt;/h2&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;快速排序&lt;/h3&gt;
+&lt;p&gt;下面是一段快速排序的实现代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;nf&quot;&gt;qsort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[];&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;qsort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;qsort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;qsort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;X&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;H&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这段代码开始看的时候还真是费劲，不过现在好歹是看懂了…首先是把列表头作为中值，
+分别找出比列表头小的值的列表然后递归排序，加上表头，再加上比列表头大的值的列表的递归排序，
+这里的++表示的是连接两个列表。需要注意&lt;code&gt;[F(X) || X &amp;lt;- L]&lt;/code&gt;这种形式，表示的是X取值于列表L，并
+求F(X)后所生成的列表。(要牢记这点，另外区别与&lt;code&gt;[H|T]&lt;/code&gt;的区别，&lt;code&gt;[H|T]&lt;/code&gt;中H是表头，T是表尾，|是连接符号。)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;感觉很难懂的东西，多看看，时候一到自然而然地就懂了。也不知道是不是老了，汗~^v^
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+                <link>http://sven199109.github.io/erlang/2014/09/27/erlang-lists</link>
+                <guid>http://sven199109.github.io/erlang/2014/09/27/erlang-lists</guid>
+                <pubDate>2014-09-27T00:00:00+08:00</pubDate>
+        </item>
 
         <item>
                 <title>Git那些事儿</title>

@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<title>Erlang列表编程</title>
+    
+	
+	<meta name="author" content="Sven Liu">
+	
+	<link rel="stylesheet" href="/assets/themes/Snail/css/jquery.fancybox.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/main.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/pages/journal.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/team.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/static.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/errors.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/google-code-prettify/prettify.css">
+	
+	<link rel="shortcut icon" href="/assets/themes/Snail/img/favicon.ico">
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/jquery.min.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/auto_loadmore.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/google-code-prettify/prettify.js"></script>
+	
+	<script type="text/javascript">
+	  $(function(){
+		$("pre code").addClass("prettyprint linenums");
+		prettyPrint();
+	  });
+	</script>
+	
+<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- atom & rss feed -->
+    <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
+    <link href="/rss.xml" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
+</head>
+<body>
+	<noscript>
+		&amp;lt;div id="no-js"&amp;gt;Please enable JavaScript in your browser to experience / fully&amp;lt;/div&amp;gt;
+	</noscript>
+    <div id="page-container">
+		<div>
+			<nav>
+	<div id="nav-l">
+	</div>
+	<div id="nav-c">
+		<ul id="nav-list" style="width: 700px;">
+			<li id="home"><a href="/">Home</a></li>
+			
+			
+			
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "About Me"><a href="/about.html">About Me</a></li>
+					
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Archive"><a href="/archive.html">Archive</a></li>
+					
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Categories"><a href="/categories.html">Categories</a></li>
+					
+				  
+				
+			 
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Tags"><a href="/tags.html">Tags</a></li>
+					
+				  
+				
+			 
+			
+			
+		</ul>
+		<form id="nav-search" method="GET" action="/search.html">
+			<div id="search-right-pix">
+				<div id="search-left-pix">
+					<div id="search-center-pix">
+						<div id="search-icon-pix"></div>
+						<input name="query" type="text" placeholder="Search">
+					</div>
+				</div>
+			</div>
+		</form>
+		
+		
+	</div>
+	<div id="nav-r">
+	</div>
+</nav>
+			<div id="page-content">
+				
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
+
+<a href="/categories.html#erlang-ref" title="erlang">
+	erlang
+
+</a>
+</div>
+				
+				</div>
+			</div>
+			<div class="journal-body">
+				<h1 class="journal-title">Erlang列表编程<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<p>无论用什么编程，数据结构都是很重要的一部分，今天就主要写一些lists的编程。</p>
+
+<!--more-->
+
+<h2 id="bif">用于列表处理的BIF</h2>
+<p>经常会用到一些内置函数来进行类型转换，常用的有以下：</p>
+
+<h4 id="atomtolista">atom_to_list(A)</h4>
+<p>将一个原子式L转换为一个字符列表。</p>
+
+<h4 id="floattolistf">float_to_list(F)</h4>
+<p>将浮点数F转换为一个字符列表。</p>
+
+<h4 id="integertolisti">integer_to_list(I)</h4>
+<p>将整数I转换为一个字符列表。</p>
+
+<h4 id="tupletolistt">tuple_to_list(T)</h4>
+<p>将一个元组T转换为列表。</p>
+
+<h4 id="pidtolistpid">pid_to_list(Pid)</h4>
+<p>将一个进程ID(Pid)转换为列表。</p>
+
+<p>相应的还有list_to_atom,list_to_integer,list_to_float,list_to_tuple,list_to_Pid。</p>
+
+<h4 id="hdl">hd(L)</h4>
+<p>返回列表L的第一个元素。</p>
+
+<h4 id="tll">tl(L)</h4>
+<p>返回列表L的尾部。</p>
+
+<h4 id="lengthl">length(L)</h4>
+<p>返回列表L的长度。</p>
+
+<pre><code>以上据说的`字符列表`都是ASCII的表现形式，即表示的是字符的ASCII值。
+</code></pre>
+
+<h2 id="lists">常用的列表(lists)处理函数</h2>
+
+<h4 id="memberxl">member(X,L)</h4>
+<p>X是否是列表L的元素，是返回true,否返回false。</p>
+
+<h4 id="appendab">append(A,B)</h4>
+<p>连接两个列表A和B。</p>
+
+<h4 id="reversel">reverse(L)</h4>
+<p>将列表L元素倒序。</p>
+
+<h4 id="deletexl">delete(X,L)</h4>
+<p>从列表L中删除元素X并返回一个新列表。</p>
+
+<h2 id="sets">常用的集合(sets)函数</h2>
+<p>在Erlang中，集合是一个不包含重复元素的无序列表。
+集合的操作函数如下：</p>
+
+<h4 id="new">new()</h4>
+<p>返回一个空集合。</p>
+
+<h4 id="addelementxs">add_element(X,S)</h4>
+<p>返回将元素X并入集合S后所产生的新集合。</p>
+
+<h4 id="delelementxs">del_element(X,S)</h4>
+<p>返回从集合S中删除元素X后产生的新集合。</p>
+
+<h4 id="iselementxs">is_element(X,S)</h4>
+<p>元素X是否在集合S中，是返回true,否返回false。</p>
+
+<h4 id="isemptys">is_empty(S)</h4>
+<p>集合S是否为空，是返回true,否返回false。</p>
+
+<h4 id="intersections1s2">intersection(S1,S2)</h4>
+<p>返回S1和S2的交集。</p>
+
+<h2 id="section">函数式参数</h2>
+
+<h3 id="map">map</h3>
+
+<hr />
+
+<p>函数map(Func,List)返回一个列表L，其中的元素由函数Func依次作用于List中的各个元素得到。</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="nf">map</span><span class="p">(</span><span class="nv">Func</span><span class="p">,[</span><span class="nv">H</span><span class="p">|</span><span class="nv">T</span><span class="p">])</span> <span class="o">-&gt;</span>
+	<span class="p">[</span><span class="nb">apply</span><span class="p">(</span><span class="nv">Func</span><span class="p">,[</span><span class="nv">H</span><span class="p">])|</span><span class="n">map</span><span class="p">(</span><span class="nv">Func</span><span class="p">,</span><span class="nv">T</span><span class="p">)];</span>
+<span class="nf">map</span><span class="p">(</span><span class="nv">Func</span><span class="p">,[])</span> <span class="o">-&gt;</span>
+	<span class="p">[].</span>
+
+<span class="o">&gt;</span> <span class="nn">lists</span><span class="p">:</span><span class="nf">map</span><span class="p">(</span><span class="k">fun</span><span class="p">(</span><span class="nv">X</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nn">math</span><span class="p">:</span><span class="nf">factorial</span><span class="p">(</span><span class="nv">X</span><span class="p">)</span> <span class="k">end</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]).</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">720</span><span class="p">,</span><span class="mi">5040</span><span class="p">,</span><span class="mi">40320</span><span class="p">]</span></code></pre></div>
+
+<p>这段函数调用时的作用是生成参数列表中所有元素的阶乘并返回一个新列表，这里需要注意的是apply调用，
+<code>apply(Mod,Func,[Params])</code>等同于<code>Mod:Func(Params)</code>调用，尤其需要注意apply调用时参数里的<code>[]</code>符号。
+还要注意，<code>apply({Mod,Func},[Params])</code>这种形式支持在控制台下使用，但貌似并不支持在文件代码中使用，
+因此使用<code>{Mod,Func}</code>作为参数传递时可能会遇到意想不到的错误，最好使用<code>fun Mod:Func/N</code>的形式作为参数传递。
+<code>lists:map(fun(X) -&gt; math:factorial(X) end,[1,2,3,4,5,6,7,8]).</code>等价于<code>lists:map(fun math:factorial/1,[1,2,3,4,5,6,7,8]).</code>。</p>
+
+<hr />
+
+<h3 id="filter">filter</h3>
+<p>函数filter(Pred,List)对列表List中的元素进行过滤，仅保留令Pred的值为<code>true</code>的元素。Pred是一个返回<code>true</code>或<code>false</code>的函数。</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="nf">filter</span><span class="p">(</span><span class="nv">Pred</span><span class="p">,[</span><span class="nv">H</span><span class="p">|</span><span class="nv">T</span><span class="p">])</span> <span class="o">-&gt;</span>
+	<span class="k">case</span> <span class="nb">apply</span><span class="p">(</span><span class="nv">Pred</span><span class="p">,[</span><span class="nv">H</span><span class="p">])</span> <span class="k">of</span> 
+		<span class="n">true</span> <span class="o">-&gt;</span>
+			<span class="p">[</span><span class="nv">H</span><span class="p">|</span><span class="n">filter</span><span class="p">(</span><span class="nv">Pred</span><span class="p">,</span><span class="nv">T</span><span class="p">)];</span>
+		<span class="n">false</span> <span class="o">-&gt;</span>
+			<span class="n">filter</span><span class="p">(</span><span class="nv">Pred</span><span class="p">,</span><span class="nv">T</span><span class="p">)</span>
+	<span class="k">end</span><span class="p">;</span>
+<span class="nf">filter</span><span class="p">(_,[])</span> <span class="o">-&gt;</span>
+	<span class="p">[].</span>
+
+<span class="o">&gt;</span> <span class="nn">lists</span><span class="p">:</span><span class="nf">filter</span><span class="p">(</span><span class="k">fun</span><span class="p">(</span><span class="nv">X</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nn">math</span><span class="p">:</span><span class="nf">even</span><span class="p">(</span><span class="nv">X</span><span class="p">)</span> <span class="k">end</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">]).</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span></code></pre></div>
+
+<p>上例调用用于过滤并产生一个偶数列表。</p>
+
+<h2 id="section-1">排序算法</h2>
+
+<h3 id="section-2">快速排序</h3>
+<p>下面是一段快速排序的实现代码：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="nf">qsort</span><span class="p">([])</span> <span class="o">-&gt;</span> <span class="p">[];</span>
+<span class="nf">qsort</span><span class="p">([</span><span class="nv">H</span><span class="p">|</span><span class="nv">T</span><span class="p">])</span> <span class="o">-&gt;</span>
+	<span class="n">qsort</span><span class="p">([</span><span class="nv">X</span> <span class="p">||</span> <span class="nv">X</span> <span class="o">&lt;-</span> <span class="nv">T</span><span class="p">,</span> <span class="nv">X</span> <span class="o">&lt;</span> <span class="nv">H</span><span class="p">])</span> <span class="o">++</span> <span class="p">[</span><span class="nv">H</span><span class="p">]</span> <span class="o">++</span> <span class="n">qsort</span><span class="p">([</span><span class="nv">X</span> <span class="p">||</span> <span class="nv">X</span> <span class="o">&lt;-</span> <span class="nv">T</span><span class="p">,</span> <span class="nv">X</span> <span class="o">&gt;=</span> <span class="nv">H</span><span class="p">]).</span></code></pre></div>
+
+<p>这段代码开始看的时候还真是费劲，不过现在好歹是看懂了…首先是把列表头作为中值，
+分别找出比列表头小的值的列表然后递归排序，加上表头，再加上比列表头大的值的列表的递归排序，
+这里的++表示的是连接两个列表。需要注意<code>[F(X) || X &lt;- L]</code>这种形式，表示的是X取值于列表L，并
+求F(X)后所生成的列表。(要牢记这点，另外区别与<code>[H|T]</code>的区别，<code>[H|T]</code>中H是表头，T是表尾，|是连接符号。)</p>
+
+<pre><code>感觉很难懂的东西，多看看，时候一到自然而然地就懂了。也不知道是不是老了，汗~^v^
+</code></pre>
+
+				</span>
+				<div class="journal-date">Published 27 September 2014</div>
+				<div class="journal-tags">
+				
+				
+	 
+		<a class="tag-cont" href="/tags.html#Erlang-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">Erlang</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#lists-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">lists</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#sets-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">sets</div>
+			<div class="tag-r"></div>
+		</a>
+	
+
+
+
+				</div>
+			</div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/erlang/2014/09/27/erlang-lists"  data-title="Erlang列表编程 - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+	<div class="clearboth"></div>
+</div>
+
+			</div>
+			<div class="clearboth pagebottom"></div>
+		</div>
+	</div>
+	<footer>
+	<div class="footer-940">
+		<div class="footer-general-info">
+			© 2014 Sven Liu.<br><br>
+			Content licensed under:<br>
+			<a class="cc" href="http://creativecommons.org/licenses/by-sa/3.0/">c a b</a><br>
+			<a href = "/about.html">About Me</a><br>
+		</div>
+		<div class="footer-col-cont">
+			<div class="footer-nav-col">
+				<h4><a>Categories</a></h4>
+				<ul>
+					
+					
+
+
+  
+     
+    	<li><a href="/categories.html#erlang-ref">
+    		erlang <span>3</span>
+    	</a></li>
+     
+    	<li><a href="/categories.html#git-ref">
+    		git <span>1</span>
+    	</a></li>
+    
+  
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Pages</a></h4>
+				<ul>
+					
+					
+					
+
+
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/about.html">About Me</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Feed</a></h4>
+				<ul>
+					<li><a href="/atom.xml">Atom Feed</a></li>
+					<li><a href="/rss.xml">RSS Feed</a></li>
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Links</a></h4>
+				<ul>
+				 
+					<li><a href = "http://sven199109.github.io/">Sven's Blog</a></li>
+				
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a href = "/about.html">About Me</a></h4>
+				<ul>
+				 
+					<li><a href = "mailto:sven199109@gmail.com">e-mail</a></li>
+				 
+					<li><a href = "https://github.com/sven199109">Github</a></li>
+				 
+					<li><a href = "http://www.weibo.com/u/1282853260">WeiBo</a></li>
+				
+				</ul>
+			</div>
+			<div class="clearboth"></div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+	<div class="clearboth"></div>
+</footer>
+	
+</body>
+</html>
+

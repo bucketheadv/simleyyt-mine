@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<title>Erlang的编译和运行</title>
+    
+	
+	<meta name="author" content="Sven Liu">
+	
+	<link rel="stylesheet" href="/assets/themes/Snail/css/jquery.fancybox.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/main.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/pages/journal.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/team.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/static.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/errors.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/google-code-prettify/prettify.css">
+	
+	<link rel="shortcut icon" href="/assets/themes/Snail/img/favicon.ico">
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/jquery.min.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/auto_loadmore.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/google-code-prettify/prettify.js"></script>
+	
+	<script type="text/javascript">
+	  $(function(){
+		$("pre code").addClass("prettyprint linenums");
+		prettyPrint();
+	  });
+	</script>
+	
+<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- atom & rss feed -->
+    <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
+    <link href="/rss.xml" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
+</head>
+<body>
+	<noscript>
+		&amp;lt;div id="no-js"&amp;gt;Please enable JavaScript in your browser to experience / fully&amp;lt;/div&amp;gt;
+	</noscript>
+    <div id="page-container">
+		<div>
+			<nav>
+	<div id="nav-l">
+	</div>
+	<div id="nav-c">
+		<ul id="nav-list" style="width: 700px;">
+			<li id="home"><a href="/">Home</a></li>
+			
+			
+			
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "About Me"><a href="/about.html">About Me</a></li>
+					
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Archive"><a href="/archive.html">Archive</a></li>
+					
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Categories"><a href="/categories.html">Categories</a></li>
+					
+				  
+				
+			 
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Tags"><a href="/tags.html">Tags</a></li>
+					
+				  
+				
+			 
+			
+			
+		</ul>
+		<form id="nav-search" method="GET" action="/search.html">
+			<div id="search-right-pix">
+				<div id="search-left-pix">
+					<div id="search-center-pix">
+						<div id="search-icon-pix"></div>
+						<input name="query" type="text" placeholder="Search">
+					</div>
+				</div>
+			</div>
+		</form>
+		
+		
+	</div>
+	<div id="nav-r">
+	</div>
+</nav>
+			<div id="page-content">
+				
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
+
+<a href="/categories.html#erlang-ref" title="erlang">
+	erlang
+
+</a>
+</div>
+				
+				</div>
+			</div>
+			<div class="journal-body">
+				<h1 class="journal-title">Erlang的编译和运行<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<p>这次主要记录一下Erlang运行的几个方式以及makefile的编写。</p>
+
+<!--more-->
+
+<h2 id="section">设置代码的搜索路径</h2>
+<p>Erlang的运行时系统使用一种代码自动载入机制。可以通过<code>code:get_path()</code>来查看当前载入的路径值。
+下面是两个最常用的用来操作载入路径的函数。</p>
+
+<h4 id="spec-codeaddpathadir--true--errorbaddirectory">-spec code:add_patha(Dir) =&gt; true | {error,bad_directory}</h4>
+<p>向载入路径开头添加一个新的目录</p>
+
+<h4 id="spec-codeaddpathzdir--true--errorbaddirectory">-spec code:add_pathz(Dir) =&gt; true | {error,bad_directory}</h4>
+<p>向载入路径末端添加一个新的目录</p>
+
+<p>这两个函数会返回不同的结果，如果出现了载入错误模块时，可以调用<code>code:all_loaded()</code>来查看加载模块的总列表，
+也可以通过<code>code:clash()</code>来查看哪里出了错。</p>
+
+<h2 id="erlang">通过命令来启动Erlang</h2>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="n">erl</span> <span class="o">-</span><span class="n">pa</span> <span class="nv">Dir1</span> <span class="o">-</span><span class="n">pa</span> <span class="nv">Dir2</span> <span class="p">...</span> <span class="o">-</span><span class="n">pz</span> <span class="nv">DirK1</span> <span class="o">-</span><span class="n">pz</span> <span class="nv">DirK2</span></code></pre></div>
+
+<p>这个命令的作用和<code>add_patha</code>、<code>add_pathz</code>作用一样，只是这里是通过shell命令来启动而已。</p>
+
+<h2 id="section-1">运行程序的不同方式</h2>
+
+<h3 id="erlc-xxxerl">直接使用<code>erlc xxx.erl</code>来编译</h3>
+<p>使用这种方式编译的最大问题是当文件数量很大时，编译的效率就显得过于低下了。</p>
+
+<h3 id="erlang-shellcxxxxxx">在Erlang shell里使用<code>c(xxx)</code>来编译，xxx为模块名称。</h3>
+<p>这种方式一般在调试代码时使用，并且它是支持热更的一种重要方式。</p>
+
+<h3 id="section-2">快速脚本编程</h3>
+<p>使用-eval参数可以进行快速脚本编程，例如:</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="n">erl</span> <span class="o">-</span><span class="n">eval</span> <span class="n">&#39;io:format(&quot;Memory: ~p~n&quot;,[erlang:memory(total)]).&#39;</span> <span class="o">-</span><span class="n">noshell</span> <span class="o">-</span><span class="n">s</span> <span class="n">init</span> <span class="n">stop</span></code></pre></div>
+
+<h3 id="shell">在shell里编译和运行</h3>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="n">erlc</span> <span class="n">hello</span><span class="p">.</span><span class="n">erl</span>
+<span class="n">erl</span> <span class="o">-</span><span class="n">noshell</span> <span class="o">-</span><span class="n">s</span> <span class="n">hello</span> <span class="n">start</span> <span class="o">-</span><span class="n">s</span> <span class="n">init</span> <span class="n">stop</span></code></pre></div>
+
+<p>这段命令的作用是首先编译hello.erl,再运行<code>hello:start()</code>和<code>init:stop()</code>两个函数。<code>noshell</code>表示不开启erlang终端。</p>
+
+<h3 id="escript">作为Escript运行</h3>
+<p>创建一个名为<code>hello</code>文件，在文件中输入以下代码：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="err">#</span><span class="o">!/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">env</span> <span class="n">escript</span>
+<span class="nf">main</span><span class="p">(</span><span class="nv">Args</span><span class="p">)</span> <span class="o">-&gt;</span>
+	<span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;Hello world</span><span class="si">~n</span><span class="s">&quot;</span><span class="p">).</span></code></pre></div>
+
+<p>保存后返回终端，然后输入以下命令：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="sc">$ </span><span class="n">chmod</span> <span class="n">u</span><span class="o">+</span><span class="n">x</span> <span class="n">hello</span>
+<span class="sc">$ </span><span class="p">.</span><span class="o">/</span><span class="n">hello</span>
+<span class="nv">Hello</span> <span class="n">world</span></code></pre></div>
+
+<p>这种情况下作为脚本解释不用编译就能直接运行，但需要注意的是要给文件添加执行权限。</p>
+
+<h3 id="section-3">运行带命令行参数的程序</h3>
+<p>新建一个名为fac.erl的文件，并输入以下代码:</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">fac</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">main</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
+
+<span class="nf">main</span><span class="p">([</span><span class="nv">A</span><span class="p">])</span> <span class="o">-&gt;</span>
+	<span class="nv">I</span> <span class="o">=</span> <span class="nb">list_to_integer</span><span class="p">(</span><span class="nb">atom_to_list</span><span class="p">(</span><span class="nv">A</span><span class="p">)),</span>
+	<span class="nv">F</span> <span class="o">=</span> <span class="n">fac</span><span class="p">(</span><span class="nv">I</span><span class="p">),</span>
+	<span class="nn">io</span><span class="p">:</span><span class="nf">format</span><span class="p">(</span><span class="s">&quot;factorial </span><span class="si">~w</span><span class="s"> = </span><span class="si">~w~n</span><span class="s">&quot;</span><span class="p">,[</span><span class="nv">I</span><span class="p">,</span><span class="nv">F</span><span class="p">]),</span>
+	<span class="nn">init</span><span class="p">:</span><span class="nf">stop</span><span class="p">().</span>
+
+<span class="nf">fac</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="p">;</span>
+<span class="nf">fac</span><span class="p">(</span><span class="nv">N</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nv">N</span> <span class="o">*</span> <span class="n">fac</span><span class="p">(</span><span class="nv">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">).</span></code></pre></div>
+
+<p>然后编译并运行。</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="sc">$ </span><span class="n">erl</span> <span class="n">fac</span><span class="p">.</span><span class="n">erl</span>
+<span class="sc">$ </span><span class="n">erl</span> <span class="o">-</span><span class="n">noshell</span> <span class="o">-</span><span class="n">s</span> <span class="n">fac</span> <span class="n">main</span> <span class="mi">5</span>
+<span class="n">factorial</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">120</span></code></pre></div>
+
+<p>也可以将以上代码修改代码头后写成Escript脚本文件，写成脚本文件fac，运行如下:</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="sc">$ </span><span class="p">.</span><span class="o">/</span><span class="n">fac</span> <span class="mi">5</span>
+<span class="n">factorial</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">120</span></code></pre></div>
+
+<h3 id="makefile">重头戏，Makefile!</h3>
+<p>如果要编译的文件很多，编写Makefile就很有必要了。一个精简的Makefile模板如下：</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">## 以下几行不需要改动</span>
+<span class="p">.</span><span class="nl">SUFFIXES</span><span class="p">:</span> <span class="p">.</span><span class="n">erl</span> <span class="p">.</span><span class="n">beam</span> 
+
+<span class="p">.</span><span class="n">erl</span><span class="p">.</span><span class="nl">beam</span><span class="p">:</span>
+	<span class="n">erlc</span> <span class="o">-</span><span class="n">W</span> <span class="err">$</span><span class="o">&lt;</span>
+
+<span class="n">ERL</span> <span class="o">=</span> <span class="n">erl</span> <span class="o">-</span><span class="n">boot</span> <span class="n">start_clean</span>
+
+<span class="cp">## 这里写入要编译的模块</span>
+<span class="n">MODS</span> <span class="o">=</span> <span class="n">module1</span> <span class="n">module2</span> <span class="p">...</span> <span class="n">moduleN</span> 
+
+<span class="cp">## 这里的&#39;.&#39;表示当前文件夹，这行的作用是运行当前文件夹下module1模块中的start函数</span>
+<span class="cp">## 如果不需要运行程序，此句当省略</span>
+<span class="nl">all</span><span class="p">:</span><span class="n">compile</span>
+	<span class="err">$</span><span class="p">{</span><span class="n">ERL</span><span class="p">}</span> <span class="o">-</span><span class="n">pa</span> <span class="sc">&#39;.&#39;</span> <span class="o">-</span><span class="n">s</span> <span class="n">module1</span> <span class="n">start</span>
+
+<span class="cp">## 这里的subdirs可以省略，否则与下文的subdirs对应</span>
+<span class="nl">compile</span><span class="p">:</span> <span class="err">$</span><span class="p">{</span><span class="nl">MODS</span><span class="p">:</span> <span class="o">%=%</span><span class="p">.</span><span class="n">beam</span><span class="p">}</span> <span class="n">subdirs</span>
+
+<span class="cp">## 如果有子文件夹，进入该子文件夹后再进行Makefile</span>
+<span class="cp">## 此时子文件夹中也需要有Makefile文件</span>
+<span class="nl">subdirs</span><span class="p">:</span>
+	<span class="n">cd</span> <span class="n">dir1</span><span class="p">;</span><span class="err">$</span><span class="p">(</span><span class="n">MAKE</span><span class="p">)</span>
+	<span class="n">cd</span> <span class="n">dir2</span><span class="p">;</span><span class="err">$</span><span class="p">(</span><span class="n">MAKE</span><span class="p">)</span>
+
+<span class="cp">## 移除所有代码</span>
+<span class="cp">## 如果子文件夹有Makefile,则也需要在子文件夹中make clean</span>
+<span class="nl">clean</span><span class="p">:</span>
+	<span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">*</span><span class="p">.</span><span class="n">beam</span> <span class="n">erl_crash</span><span class="p">.</span><span class="n">dump</span>
+	<span class="n">cd</span> <span class="n">dir1</span><span class="p">;</span> <span class="err">$</span><span class="p">(</span><span class="n">MAKE</span><span class="p">)</span> <span class="n">clean</span></code></pre></div>
+
+<p>详细的编写方法，都写在了注释里，无需再多花时间出来解释。</p>
+
+<h2 id="erlang-1">如果你的Erlang崩溃了</h2>
+
+<h3 id="section-4">阅读转储文件</h3>
+<p>如果erlang崩溃了，会留下一个erl_crash.dump文件，此时可以启动一个Web故障分析器，
+输入以下命令：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="mi">1</span><span class="o">&gt;</span> <span class="nn">crashdump_viewer</span><span class="p">:</span><span class="nf">start</span><span class="p">().</span>
+<span class="nv">WebTool</span> <span class="n">is</span> <span class="n">available</span> <span class="n">at</span> <span class="nn">http</span><span class="p">:</span><span class="o">//</span><span class="nn">localhost</span><span class="p">:</span><span class="mi">8888</span><span class="o">/</span>
+<span class="nv">Or</span> <span class="nn">http</span><span class="p">:</span><span class="o">//</span><span class="mi">127</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">:</span><span class="mi">8888</span><span class="o">/</span>
+<span class="n">ok</span></code></pre></div>
+
+<p>然后打开浏览器输入<a href="http://localhost:8888">http://localhost:8888</a>，这样就能查看错误日志了。</p>
+
+				</span>
+				<div class="journal-date">Published 06 October 2014</div>
+				<div class="journal-tags">
+				
+				
+	 
+		<a class="tag-cont" href="/tags.html#Erlang-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">Erlang</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#Makefile-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">Makefile</div>
+			<div class="tag-r"></div>
+		</a>
+	
+
+
+
+				</div>
+			</div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/erlang/2014/10/06/erlang-makefile"  data-title="Erlang的编译和运行 - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+	<div class="clearboth"></div>
+</div>
+
+			</div>
+			<div class="clearboth pagebottom"></div>
+		</div>
+	</div>
+	<footer>
+	<div class="footer-940">
+		<div class="footer-general-info">
+			© 2014 Sven Liu.<br><br>
+			Content licensed under:<br>
+			<a class="cc" href="http://creativecommons.org/licenses/by-sa/3.0/">c a b</a><br>
+			<a href = "/about.html">About Me</a><br>
+		</div>
+		<div class="footer-col-cont">
+			<div class="footer-nav-col">
+				<h4><a>Categories</a></h4>
+				<ul>
+					
+					
+
+
+  
+     
+    	<li><a href="/categories.html#erlang-ref">
+    		erlang <span>3</span>
+    	</a></li>
+     
+    	<li><a href="/categories.html#git-ref">
+    		git <span>1</span>
+    	</a></li>
+    
+  
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Pages</a></h4>
+				<ul>
+					
+					
+					
+
+
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/about.html">About Me</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Feed</a></h4>
+				<ul>
+					<li><a href="/atom.xml">Atom Feed</a></li>
+					<li><a href="/rss.xml">RSS Feed</a></li>
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Links</a></h4>
+				<ul>
+				 
+					<li><a href = "http://sven199109.github.io/">Sven's Blog</a></li>
+				
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a href = "/about.html">About Me</a></h4>
+				<ul>
+				 
+					<li><a href = "mailto:sven199109@gmail.com">e-mail</a></li>
+				 
+					<li><a href = "https://github.com/sven199109">Github</a></li>
+				 
+					<li><a href = "http://www.weibo.com/u/1282853260">WeiBo</a></li>
+				
+				</ul>
+			</div>
+			<div class="clearboth"></div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+	<div class="clearboth"></div>
+</footer>
+	
+</body>
+</html>
+
