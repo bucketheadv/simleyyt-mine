@@ -141,4 +141,4 @@ WebTool is available at http://localhost:8888/
 Or http://127.0.0.1:8888/
 ok
 {% endhighlight %}
-`然后打开浏览器输入[http://localhost:8888](http://localhost:8888)，这样就能查看错误日志了。`
+然后打开浏览器输入[http://localhost:8888](http://localhost:8888)，这样就能查看错误日志了。

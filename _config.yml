@@ -62,7 +62,7 @@ paginate_path : ":num"
 #
 auto_loadmore : true
 
-port : 80
+port : 8080
 
 url : http://localhost
 
