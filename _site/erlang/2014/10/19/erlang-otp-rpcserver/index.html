@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<title>基于Erlang/OTP的rpc服务器</title>
+    
+	
+	<meta name="author" content="Sven Liu">
+	
+	<link rel="stylesheet" href="/assets/themes/Snail/css/jquery.fancybox.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/main.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/pages/journal.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/team.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/static.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/errors.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/google-code-prettify/prettify.css">
+	
+	<link rel="shortcut icon" href="/assets/themes/Snail/img/favicon.ico">
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/jquery.min.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/auto_loadmore.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/google-code-prettify/prettify.js"></script>
+	
+	<script type="text/javascript">
+	  $(function(){
+		$("pre code").addClass("prettyprint linenums");
+		prettyPrint();
+	  });
+	</script>
+	
+<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- atom & rss feed -->
+    <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
+    <link href="/rss.xml" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
+</head>
+<body>
+	<noscript>
+		&amp;lt;div id="no-js"&amp;gt;Please enable JavaScript in your browser to experience / fully&amp;lt;/div&amp;gt;
+	</noscript>
+    <div id="page-container">
+		<div>
+			<nav>
+	<div id="nav-l">
+	</div>
+	<div id="nav-c">
+		<ul id="nav-list" style="width: 700px;">
+			<li id="home"><a href="/">Home</a></li>
+			
+			
+			
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "About Me"><a href="/about.html">About Me</a></li>
+					
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Archive"><a href="/archive.html">Archive</a></li>
+					
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Categories"><a href="/categories.html">Categories</a></li>
+					
+				  
+				
+			 
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Tags"><a href="/tags.html">Tags</a></li>
+					
+				  
+				
+			 
+			
+			
+		</ul>
+		<form id="nav-search" method="GET" action="/search.html">
+			<div id="search-right-pix">
+				<div id="search-left-pix">
+					<div id="search-center-pix">
+						<div id="search-icon-pix"></div>
+						<input name="query" type="text" placeholder="Search">
+					</div>
+				</div>
+			</div>
+		</form>
+		
+		
+	</div>
+	<div id="nav-r">
+	</div>
+</nav>
+			<div id="page-content">
+				
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
+
+<a href="/categories.html#erlang-ref" title="erlang">
+	erlang
+
+</a>
+</div>
+				
+				</div>
+			</div>
+			<div class="journal-body">
+				<h1 class="journal-title">基于Erlang/OTP的rpc服务器<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<p>最近在学Erlang/OTP,记录一下各种服务的开发过程。</p>
+
+<!--more-->
+
+<h2 id="section">首先贴上代码</h2>
+
+<h3 id="trservererl">tr_server.erl</h3>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">tr_server</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">include_lib</span><span class="p">(</span><span class="s">&quot;eunit/include/eunit.hrl&quot;</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">behaviour</span><span class="p">(</span><span class="n">gen_server</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">start_link</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">start_link</span><span class="o">/</span><span class="mi">1</span><span class="p">,</span><span class="n">init</span><span class="o">/</span><span class="mi">1</span><span class="p">,</span><span class="n">handle_call</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span><span class="n">handle_info</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">handle_cast</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">code_change</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span><span class="n">terminate</span><span class="o">/</span><span class="mi">2</span><span class="p">]).</span>
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">get_count</span><span class="o">/</span><span class="mi">0</span><span class="p">,</span><span class="n">stop</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
+
+<span class="p">-</span><span class="ni">define</span><span class="p">(</span><span class="no">SERVER</span><span class="p">,</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">define</span><span class="p">(</span><span class="no">DEFAULT_PORT</span><span class="p">,</span><span class="mi">1055</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">record</span><span class="p">(</span><span class="nl">state</span><span class="p">,{</span><span class="n">port</span><span class="p">,</span><span class="n">lsock</span><span class="p">,</span><span class="n">request_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">}).</span>
+
+<span class="nf">start_test</span><span class="p">()</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,_}</span> <span class="o">=</span> <span class="nn">tr_server</span><span class="p">:</span><span class="nf">start_link</span><span class="p">(</span><span class="o">?</span><span class="nv">DEFAULT_PORT</span><span class="p">).</span>
+
+<span class="nf">start_link</span><span class="p">(</span><span class="nv">Port</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="nn">gen_server</span><span class="p">:</span><span class="nf">start_link</span><span class="p">({</span><span class="n">local</span><span class="p">,</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">},</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,[</span><span class="nv">Port</span><span class="p">],[]).</span>
+
+<span class="nf">start_link</span><span class="p">()</span> <span class="o">-&gt;</span>
+    <span class="n">start_link</span><span class="p">(</span><span class="o">?</span><span class="nv">DEFAULT_PORT</span><span class="p">).</span>
+
+<span class="nf">init</span><span class="p">([</span><span class="nv">Port</span><span class="p">])</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">LSock</span><span class="p">}</span> <span class="o">=</span> <span class="nn">gen_tcp</span><span class="p">:</span><span class="nf">listen</span><span class="p">(</span><span class="nv">Port</span><span class="p">,[{</span><span class="n">active</span><span class="p">,</span><span class="n">true</span><span class="p">}]),</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nl">#state</span><span class="p">{</span><span class="n">port</span> <span class="o">=</span> <span class="nv">Port</span><span class="p">,</span><span class="n">lsock</span> <span class="o">=</span> <span class="nv">LSock</span><span class="p">},</span><span class="mi">0</span><span class="p">}.</span>
+
+<span class="nf">get_count</span><span class="p">()</span> <span class="o">-&gt;</span>
+    <span class="nn">gen_server</span><span class="p">:</span><span class="nf">call</span><span class="p">(</span><span class="o">?</span><span class="nv">SERVER</span><span class="p">,</span><span class="n">get_count</span><span class="p">).</span>
+
+<span class="nf">stop</span><span class="p">()</span> <span class="o">-&gt;</span>
+    <span class="nn">gen_server</span><span class="p">:</span><span class="nf">cast</span><span class="p">(</span><span class="o">?</span><span class="nv">SERVER</span><span class="p">,</span><span class="n">stop</span><span class="p">).</span>
+
+<span class="nf">handle_call</span><span class="p">(</span><span class="n">get_count</span><span class="p">,_</span><span class="nv">From</span><span class="p">,</span><span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">reply</span><span class="p">,{</span><span class="n">ok</span><span class="p">,</span><span class="nv">State</span><span class="nl">#state.request_count</span><span class="p">,</span><span class="nv">State</span><span class="p">}}.</span>
+
+<span class="nf">handle_cast</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span><span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">stop</span><span class="p">,</span><span class="n">normal</span><span class="p">,</span><span class="nv">State</span><span class="p">}.</span>
+
+<span class="nf">handle_info</span><span class="p">({</span><span class="n">tcp</span><span class="p">,</span><span class="nv">Socket</span><span class="p">,</span><span class="nv">RawData</span><span class="p">},</span><span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="n">do_rpc</span><span class="p">(</span><span class="nv">Socket</span><span class="p">,</span><span class="nv">RawData</span><span class="p">),</span>
+    <span class="nv">RequestCount</span> <span class="o">=</span> <span class="nv">State</span><span class="nl">#state.request_count</span><span class="p">,</span>
+    <span class="p">{</span><span class="n">noreply</span><span class="p">,</span><span class="nv">State</span><span class="nl">#state</span><span class="p">{</span><span class="n">request_count</span> <span class="o">=</span> <span class="nv">RequestCount</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}};</span>
+<span class="nf">handle_info</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span><span class="nl">#state</span><span class="p">{</span><span class="n">lsock</span> <span class="o">=</span> <span class="nv">LSock</span><span class="p">}</span> <span class="o">=</span> <span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,_</span><span class="nv">Sock</span><span class="p">}</span> <span class="o">=</span> <span class="nn">gen_tcp</span><span class="p">:</span><span class="nf">accept</span><span class="p">(</span><span class="nv">LSock</span><span class="p">),</span>
+    <span class="p">{</span><span class="n">noreply</span><span class="p">,</span><span class="nv">State</span><span class="p">}.</span>
+
+<span class="nf">terminate</span><span class="p">(_</span><span class="nv">Reason</span><span class="p">,_</span><span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="n">ok</span><span class="p">.</span>
+
+<span class="nf">code_change</span><span class="p">(_</span><span class="nv">OldVsn</span><span class="p">,</span><span class="nv">State</span><span class="p">,_</span><span class="nv">Extra</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">State</span><span class="p">}.</span>
+
+<span class="nf">do_rpc</span><span class="p">(</span><span class="nv">Socket</span><span class="p">,</span><span class="nv">RawData</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="k">try</span>
+        <span class="p">{</span><span class="nv">M</span><span class="p">,</span><span class="nv">F</span><span class="p">,</span><span class="nv">A</span><span class="p">}</span> <span class="o">=</span> <span class="n">split_out_mfa</span><span class="p">(</span><span class="nv">RawData</span><span class="p">),</span>
+        <span class="nv">Result</span> <span class="o">=</span> <span class="nb">apply</span><span class="p">(</span><span class="nv">M</span><span class="p">,</span><span class="nv">F</span><span class="p">,</span><span class="nv">A</span><span class="p">),</span>
+        <span class="nn">gen_tcp</span><span class="p">:</span><span class="nb">send</span><span class="p">(</span><span class="nv">Socket</span><span class="p">,</span><span class="nn">io_lib</span><span class="p">:</span><span class="nf">fwrite</span><span class="p">(</span><span class="s">&quot;</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,[</span><span class="nv">Result</span><span class="p">]))</span>
+    <span class="k">catch</span>
+        <span class="p">_</span><span class="nv">Class</span><span class="p">:</span><span class="nv">Err</span> <span class="o">-&gt;</span>
+            <span class="nn">gen_tcp</span><span class="p">:</span><span class="nb">send</span><span class="p">(</span><span class="nv">Socket</span><span class="p">,</span><span class="nn">io_lib</span><span class="p">:</span><span class="nf">fwrite</span><span class="p">(</span><span class="s">&quot;</span><span class="si">~p~n</span><span class="s">&quot;</span><span class="p">,[</span><span class="nv">Err</span><span class="p">]))</span>
+    <span class="k">end</span><span class="p">.</span>
+
+<span class="nf">split_out_mfa</span><span class="p">(</span><span class="nv">RawData</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="nv">MFA</span> <span class="o">=</span> <span class="nn">re</span><span class="p">:</span><span class="nf">replace</span><span class="p">(</span><span class="nv">RawData</span><span class="p">,</span><span class="s">&quot;</span><span class="se">\r\n</span><span class="s">$&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">,[{</span><span class="n">return</span><span class="p">,</span><span class="n">list</span><span class="p">}]),</span>
+    <span class="p">{</span><span class="n">match</span><span class="p">,[</span><span class="nv">M</span><span class="p">,</span><span class="nv">F</span><span class="p">,</span><span class="nv">A</span><span class="p">]}</span> <span class="o">=</span>
+        <span class="nn">re</span><span class="p">:</span><span class="nf">run</span><span class="p">(</span><span class="nv">MFA</span><span class="p">,</span>
+               <span class="s">&quot;(.*):(.*)</span><span class="se">\s</span><span class="s">*</span><span class="se">\\</span><span class="s">((.*)</span><span class="se">\s</span><span class="s">*</span><span class="se">\\</span><span class="s">)</span><span class="se">\s</span><span class="s">*.</span><span class="se">\s</span><span class="s">*$&quot;</span><span class="p">,</span>
+               <span class="p">[{</span><span class="n">capture</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">list</span><span class="p">},</span><span class="n">ungreedy</span><span class="p">]),</span>
+    <span class="p">{</span><span class="nb">list_to_atom</span><span class="p">(</span><span class="nv">M</span><span class="p">),</span><span class="nb">list_to_atom</span><span class="p">(</span><span class="nv">F</span><span class="p">),</span><span class="n">args_to_terms</span><span class="p">(</span><span class="nv">A</span><span class="p">)}.</span>
+
+<span class="nf">args_to_terms</span><span class="p">(</span><span class="nv">RawArgs</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">Toks</span><span class="p">,_</span><span class="nv">Line</span><span class="p">}</span> <span class="o">=</span> <span class="nn">erl_scan</span><span class="p">:</span><span class="nf">string</span><span class="p">(</span><span class="s">&quot;[&quot;</span> <span class="o">++</span> <span class="nv">RawArgs</span> <span class="o">++</span> <span class="s">&quot;]. &quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">Args</span><span class="p">}</span> <span class="o">=</span> <span class="nn">erl_parse</span><span class="p">:</span><span class="nf">parse_term</span><span class="p">(</span><span class="nv">Toks</span><span class="p">),</span>
+    <span class="nv">Args</span><span class="p">.</span></code></pre></div>
+
+<p>======================================================================================</p>
+
+<p>这段代码是最核心的部分，首先是实现gen_server的行为，包括
+<code>init/1,handle_call/3,handle_info/2,handle_cast/2,terminate/2,code_change/3</code>这六个函数。</p>
+
+<h3 id="init1">init/1函数</h3>
+
+<p>当执行<code>gen_server:start/4</code>函数时，init/1函数会被调用，这里初始化一个socket监听网络上的tcp请求。init/1函数需要返回一个元
+组， 形如{ok,State,Timeout}.State表示服务器的状态，Timeout为设置的超时时间，超时可以省略，为０时表示立即触发一个超时，即
+立即处理当前邮箱里的消息。</p>
+
+<h3 id="handlecall3">handle_call/3函数</h3>
+
+<p>这个函数只能用于处理服务器内部的消息调用，State表示服务器当前状态，与之前初始化时的State相对应，但在调用过程中可以改变
+它，_From表示发送请求的客户端的进程PID，通常需要一个返回值，{reply,Reply,NewState}，NewState为服务器接下来的状态，Reply
+为发送给客户端的消息,这里的第一个参数(get_count)是一个消息匹配,可以是一个原子，也可以是一个元组。也可以设置为{noreply,..}和{stop,…}，但相对不常用。noreply会让服务器继续工作，但客户端需要一个回
+复消息，因此必须把回复任务委派给其他进程。用适当的参数调用stop会停止服务器。这个函数的作用是实现远程过程调用。</p>
+
+<h3 id="handlecast2">handle_cast/2函数</h3>
+
+<p>这个函数用于实现播发，也就是没有返回值的调用（异步调用）。第一个参数(这里是stop)是一个消息匹配，State表示服务器状态。这
+个函数的返回值一般为{noreply,NewState}或{stop,…}。前者改变服务器状态，后者停止服务器。</p>
+
+<h3 id="handleinfo2">handle_info/2函数</h3>
+
+<p>这个函数用于处理发送给服务器的自发性消息，即所有未经显示调用gen_server:call或gen_server:cast而到达服务器的消息，例如浏览
+器访问服务器时产生的HTTP请求等，因此所有知道通用服务器PID的进程都能向它发送消息。第一个参数为一个消息匹配，第二个参数为
+服务器的状态。它的返回值与handle_cast/2函数相同。</p>
+
+<h3 id="terminate2">terminate/2函数</h3>
+
+<p>当某个handle_开头的函数返回一个{stop,Reason,NewState}，或者服务器自身崩溃产生了一个{‘EXIT’,reason}时，无论它们是怎样发生
+的，都会调用terminate/2函数。返回值为ok.</p>
+
+<h3 id="codechange3">code_change/3函数</h3>
+
+<p>你可以在服务器运行时更改它的状态。这个回调函数会在系统执行软件升级时由版本处理子系统调用。返回值为{ok,State}.</p>
+
+<h3 id="dorpc2">do_rpc/2函数</h3>
+
+<p>第一个参数为客户端Socket，第二个参数为接收到的消息。将接收到的消息使用split_out_mfa/1函数分离出消息中的
+Module,Function,Arguments存入{M,F,A},并使用apply(M,F,A)在服务器上执行这个函数，最后向客户端发送执行消息的结果（或异常）。</p>
+
+<h3 id="splitoutmfa1">split_out_mfa/1函数</h3>
+
+<p>先前说过，这个函数用于分离出消息中的Module,Function,Arguments信息，例如<code>io:format("Hello World~n")</code>,分离出的结果中
+Module,Function,Arguments的值分别是io,format,”Hello World~n”三个值。使用re模块中的run方法提取，最后返回一个元组，其中第
+一个和第二个元素是一个原子。第三个参数是一个列表。</p>
+
+<h3 id="argstoterms1">args_to_terms/1函数</h3>
+
+<p>这个函数处理参数部分，并返回一个列表。</p>
+
+<p>======================================================================================</p>
+
+<pre><code>这段代码加入了测试，添加测试需要'-include_lib("eunit/include/eunit.hrl").'，然后编写一个测试
+函数，此处为start_test/0函数。然后在Erlang Shell中使用`tr_server:test().`或
+`eunit:test(tr_server).`来进行测试。
+</code></pre>
+
+<p>======================================================================================</p>
+
+<h3 id="trsuperl">tr_sup.erl</h3>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">tr_sup</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">behaviour</span><span class="p">(</span><span class="n">supervisor</span><span class="p">).</span>
+<span class="p">-</span><span class="ni">define</span><span class="p">(</span><span class="no">SERVER</span><span class="p">,</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">init</span><span class="o">/</span><span class="mi">1</span><span class="p">,</span><span class="n">start_link</span><span class="o">/</span><span class="mi">0</span><span class="p">]).</span>
+
+<span class="nf">start_link</span><span class="p">()</span> <span class="o">-&gt;</span>
+    <span class="nn">supervisor</span><span class="p">:</span><span class="nf">start_link</span><span class="p">({</span><span class="n">local</span><span class="p">,</span><span class="o">?</span><span class="nv">SERVER</span><span class="p">},</span><span class="o">?</span><span class="nv">MODULE</span><span class="p">,[]).</span>
+
+<span class="nf">init</span><span class="p">([])</span> <span class="o">-&gt;</span>
+    <span class="nv">Server</span> <span class="o">=</span> <span class="p">{</span><span class="n">tr_server</span><span class="p">,{</span><span class="n">tr_server</span><span class="p">,</span><span class="n">start_link</span><span class="p">,[]},</span><span class="n">permanent</span><span class="p">,</span><span class="mi">2000</span><span class="p">,</span><span class="n">worker</span><span class="p">,[</span><span class="n">tr_server</span><span class="p">]},</span>
+    <span class="nv">Children</span> <span class="o">=</span> <span class="p">[</span><span class="nv">Server</span><span class="p">],</span>
+    <span class="nv">RestartStrategy</span> <span class="o">=</span> <span class="p">{</span><span class="n">one_for_one</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span>
+    <span class="p">{</span><span class="n">ok</span><span class="p">,{</span><span class="nv">RestartStrategy</span><span class="p">,</span><span class="nv">Children</span><span class="p">}}.</span></code></pre></div>
+
+<p>======================================================================================</p>
+
+<p>标准的监控器代码，当进程tr_server崩溃时，监控器会重启一个tr_server进程。实现一个监控器只需要实现supervisor行为模式，并实
+现start_link/0,init/1方法即可。</p>
+
+<h3 id="startlink0">start_link/0函数</h3>
+
+<p>启动一个监控器。</p>
+
+<h3 id="init1-1">init/1函数</h3>
+
+<p>初始化监控器，这个函数需要返回一个元组
+{ok,{RestartStrategy,MaxRestarts,Time},{Tag,{Mod,Func,ArgList},Restart,Shutdown,Type,[Mod1]}}。下面来一一解释。</p>
+
+<h4 id="restartstrategy">RestartStrategy</h4>
+
+<p>这是重启策略，可选的值有one_for_one,one_for_all,simple_one_for_one,rest_for_all，
+首先说one_for_one，使用这种策略时，如果一个子进程停止，则只重启该子进程。其次是one_for_all，使用这种策略时，如果一个子进
+程停止，则其他子进程也停止，然后全部重启。然后是rest_for_one，使用这种策略时，如果一个子进程停止，那么启动顺序在它之后的
+所有其他子进程也将停止，然后停止的这些进程重启。最后是simple_one_for_one，这种是简化的one_for_one supervisor，使用这种策
+略要求它的子进程必须全是同样类型的子进程并且是动态添加的实例，例如：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">{</span><span class="n">simple_one_for_one</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span></code></pre></div>
+
+<p>，此时当supervisor启动时不会
+启动任何子进程，只能通过代码动态添加子进程：</p>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="nn">supervisor</span><span class="p">:</span><span class="nf">start_child</span><span class="p">(</span><span class="nv">Sup</span><span class="p">,</span><span class="nv">List</span><span class="p">)</span></code></pre></div>
+
+<p>Sup是supervisor的pid或name,List是任意一个term列表，将会动态添加到子规范的参数列表。如果启动方法指定为{M,F,A}，则子进程是
+通过调用apply(M,F,A++List)来启动（）。</p>
+
+<h4 id="maxrestarts--time">MaxRestarts &amp;&amp; Time</h4>
+
+<p>最大重启频率，即如果在最近的Time秒之内有超过MaxRestarts次数的重启，则supervisor停止它本身和它所有的子进程，当supervisor
+停止后，下一个更高级别的supervisor（它的父监控器）进行下一步动作，重启该停止的supervisor或者终止本身，重启机制的意图是防
+止一个进程由于某些原因重复性的死掉。</p>
+
+<h4 id="tag">Tag</h4>
+
+<p>用来让supervisor内部识别子规范的名字，是一个原子类型的标签，可以用它指代工作进程。</p>
+
+<h4 id="modfuncarglist">{Mod,Func,ArgList}</h4>
+
+<p>指启动子进程的方法,分别是模块，函数，参数列表。该函数应该调用supervisor、gen_server、gen_event、gen_fsm其中之一的start_link
+函数。</p>
+
+<h4 id="restart">Restart</h4>
+
+<p>可选的值有</p>
+
+<ul>
+  <li>permanent</li>
+</ul>
+
+<p>永久进程，表示子进程始终会被重启</p>
+
+<ul>
+  <li>transient</li>
+</ul>
+
+<p>临时进程，表示子进程决不重启</p>
+
+<ul>
+  <li>temporary</li>
+</ul>
+
+<p>过渡进程，表示只有在子进程异常终止时才重启，即除了normal以外的终止原因</p>
+
+<h4 id="shutdown">Shutdown</h4>
+
+<p>这是关闭时间。也就是工作器终止过程允许耗费的最长时间。如果超过这个时间，工作进程就会被杀掉。</p>
+
+<p>可选的值有</p>
+
+<ul>
+  <li>brutal_kill</li>
+</ul>
+
+<p>表示子进程使用exit(Child,kill)来无条件的终止，终止之前不用做任何清理工作</p>
+
+<ul>
+  <li>
+    <p>一个整数的timeout值表示supervisor告诉子进程通过调用exit(Child,shutdown)来终止，然后等待一个exit信号返回，如果没有在指
+定时间内接收到exit信号，则子进程使用exit(Child,kill)来无条件终止</p>
+  </li>
+  <li>
+    <p>如果子进程是另一个supervisor，它应该设置为infinity来给子树足够的时间来停止</p>
+  </li>
+</ul>
+
+<h4 id="type">Type</h4>
+
+<p>可选值为worker和supervisor，表示子进程是一个工作进程还是一个监控器</p>
+
+<h4 id="mod1">[Mod1]</h4>
+
+<p>一个列表含有一个元素Mod1，
+如果子进程是一个supervisor,gen_server或gen_fsm则Mod1是冋调模块的名字，
+如果子进程是一个gen_event，则MODULES(即[Mod1])应该为dynamic
+该信息用来在升级和降级时供release handler使用</p>
+
+<pre><code>所有解释到此为止，最后要注意，代码中的Children列表中的子进程启动是按定义时的顺序先后启动，终止时是
+倒序终止！
+supervisor是Erlang/OTP中很重要的部分，虽然代码量很少，但是其中的参数设置却是十分讲究的，必须要好
+好掌握。
+</code></pre>
+
+<p>======================================================================================</p>
+
+<h3 id="trapperl">tr_app.erl</h3>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">-</span><span class="ni">module</span><span class="p">(</span><span class="n">tr_app</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">behaviour</span><span class="p">(</span><span class="n">application</span><span class="p">).</span>
+
+<span class="p">-</span><span class="ni">export</span><span class="p">([</span><span class="n">start</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">stop</span><span class="o">/</span><span class="mi">1</span><span class="p">]).</span>
+
+<span class="nf">start</span><span class="p">(_</span><span class="nv">StartType</span><span class="p">,_</span><span class="nv">StartArgs</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="k">case</span> <span class="nn">tr_sup</span><span class="p">:</span><span class="nf">start_link</span><span class="p">()</span> <span class="k">of</span> 
+        <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">Pid</span><span class="p">}</span> <span class="o">-&gt;</span>
+            <span class="p">{</span><span class="n">ok</span><span class="p">,</span><span class="nv">Pid</span><span class="p">};</span>
+        <span class="nv">Other</span> <span class="o">-&gt;</span>
+            <span class="p">{</span><span class="n">error</span><span class="p">,</span><span class="nv">Other</span><span class="p">}</span>
+    <span class="k">end</span><span class="p">.</span>
+
+<span class="nf">stop</span><span class="p">(_</span><span class="nv">State</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="n">ok</span><span class="p">.</span></code></pre></div>
+
+<p>======================================================================================</p>
+
+<p>这部分最简单，就是一个简单的应用启动模块。使用<code>application:start(tcp_rpc).</code>来启动我们这个应用，它会打开一个监控器，然后
+监控器打开其他的子进程。这里的tcp_rpc是下面tcp_rpc.app的文件名。要启动应用，就必须要编写相应的app文件。</p>
+
+<p>======================================================================================</p>
+
+<h3 id="tcprpcapp">tcp_rpc.app</h3>
+
+<div class="highlight"><pre><code class="language-erlang" data-lang="erlang"><span class="p">{</span><span class="n">application</span><span class="p">,</span><span class="n">tcp_rpc</span><span class="p">,</span>
+<span class="p">[{</span><span class="n">description</span><span class="p">,</span><span class="s">&quot;RPC server for Erlang in OTP and actions&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="n">vsn</span><span class="p">,</span><span class="s">&quot;1.0&quot;</span><span class="p">},</span>
+<span class="p">{</span><span class="n">modules</span><span class="p">,[</span><span class="n">tr_app</span><span class="p">,</span>
+          <span class="n">tr_sup</span><span class="p">,</span>
+          <span class="n">tr_server</span><span class="p">]},</span>
+<span class="p">{</span><span class="n">registered</span><span class="p">,[</span><span class="n">tr_sup</span><span class="p">]},</span>
+<span class="p">{</span><span class="n">applications</span><span class="p">,[</span><span class="n">kernel</span><span class="p">,</span><span class="n">stdlib</span><span class="p">]},</span>
+<span class="p">{</span><span class="n">mod</span><span class="p">,{</span><span class="n">tr_app</span><span class="p">,[]}}]</span>
+<span class="p">}.</span></code></pre></div>
+
+<p>======================================================================================</p>
+
+<p>这是启动应用的配置文件，application的值为应用的名称，此处为tcp_rpc；description为应用的描述，当应用被加载时，使用
+<code>application:loaded_applications().</code>可以查看该描述；vsn为版本号；modules为模块列表；registered为注册模块的列表；
+applications为加载的应用程序；mod的作用尚不清楚，应该是表示启动模块。</p>
+
+<pre><code>注意：这个应用开启后很危险，因为它可以接收远程的Erlang函数调用，这意味着当应用端口开启时，外部程序
+可以发送Erlang代码修改服务器的内容，删除服务器的文件！
+
+到此结束!
+</code></pre>
+
+<p>======================================================================================</p>
+
+
+				</span>
+				<div class="journal-date">Published 19 October 2014</div>
+				<div class="journal-tags">
+				
+				
+	 
+		<a class="tag-cont" href="/tags.html#Erlang-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">Erlang</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#OTP-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">OTP</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#rpc-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">rpc</div>
+			<div class="tag-r"></div>
+		</a>
+	
+
+
+
+				</div>
+			</div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/erlang/2014/10/19/erlang-otp-rpcserver"  data-title="基于Erlang/OTP的rpc服务器 - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+	<div class="clearboth"></div>
+</div>
+
+			</div>
+			<div class="clearboth pagebottom"></div>
+		</div>
+	</div>
+	<footer>
+	<div class="footer-940">
+		<div class="footer-general-info">
+			© 2014 Sven Liu.<br><br>
+			Content licensed under:<br>
+			<a class="cc" href="http://creativecommons.org/licenses/by-sa/3.0/">c a b</a><br>
+			<a href = "/about.html">About Me</a><br>
+		</div>
+		<div class="footer-col-cont">
+			<div class="footer-nav-col">
+				<h4><a>Categories</a></h4>
+				<ul>
+					
+					
+
+
+  
+     
+    	<li><a href="/categories.html#erlang-ref">
+    		erlang <span>4</span>
+    	</a></li>
+     
+    	<li><a href="/categories.html#git-ref">
+    		git <span>1</span>
+    	</a></li>
+    
+  
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Pages</a></h4>
+				<ul>
+					
+					
+					
+
+
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/about.html">About Me</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Feed</a></h4>
+				<ul>
+					<li><a href="/atom.xml">Atom Feed</a></li>
+					<li><a href="/rss.xml">RSS Feed</a></li>
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Links</a></h4>
+				<ul>
+				 
+					<li><a href = "http://sven199109.github.io/">Sven's Blog</a></li>
+				
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a href = "/about.html">About Me</a></h4>
+				<ul>
+				 
+					<li><a href = "mailto:sven199109@gmail.com">e-mail</a></li>
+				 
+					<li><a href = "https://github.com/sven199109">Github</a></li>
+				 
+					<li><a href = "http://www.weibo.com/u/1282853260">WeiBo</a></li>
+				
+				</ul>
+			</div>
+			<div class="clearboth"></div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+	<div class="clearboth"></div>
+</footer>
+	
+</body>
+</html>
+

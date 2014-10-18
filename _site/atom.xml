@@ -4,13 +4,346 @@
  <title>斯文的个人小站</title>
  <link href="http://sven199109.github.io/" rel="self"/>
  <link href="http://sven199109.github.io"/>
- <updated>2014-10-18T21:21:42+08:00</updated>
+ <updated>2014-10-19T00:16:25+08:00</updated>
  <id>http://sven199109.github.io</id>
  <author>
    <name>Sven Liu</name>
    <email></email>
  </author>
 
+ 
+ <entry>
+   <title>基于Erlang/OTP的rpc服务器</title>
+   <link href="http://sven199109.github.io/erlang/2014/10/19/erlang-otp-rpcserver"/>
+   <updated>2014-10-19T00:00:00+08:00</updated>
+   <id>http://sven199109.github.io/erlang/2014/10/19/erlang-otp-rpcserver</id>
+   <content type="html">&lt;p&gt;最近在学Erlang/OTP,记录一下各种服务的开发过程。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;首先贴上代码&lt;/h2&gt;
+
+&lt;h3 id=&quot;trservererl&quot;&gt;tr_server.erl&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;include_lib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;eunit/include/eunit.hrl&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;behaviour&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;gen_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;handle_call&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;handle_info&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;handle_cast&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;code_change&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;terminate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;SERVER&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MODULE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;DEFAULT_PORT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1055&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lsock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request_count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;start_test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;DEFAULT_PORT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;gen_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MODULE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MODULE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],[]).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;DEFAULT_PORT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LSock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;gen_tcp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;listen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;active&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}]),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;#state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;port&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;Port&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lsock&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;LSock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;get_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;gen_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SERVER&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;gen_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;cast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SERVER&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;handle_call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;From&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;#state.request_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;handle_cast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;handle_info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tcp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;do_rpc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;RequestCount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;#state.request_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noreply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;#state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request_count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;RequestCount&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}};&lt;/span&gt;
+&lt;span class=&quot;nf&quot;&gt;handle_info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;#state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lsock&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;LSock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Sock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;gen_tcp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;accept&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LSock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noreply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;terminate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Reason&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;code_change&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;OldVsn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Extra&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;do_rpc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;split_out_mfa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;Result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;nn&quot;&gt;gen_tcp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;io_lib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;fwrite&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;~p~n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Err&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nn&quot;&gt;gen_tcp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;io_lib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;fwrite&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;~p~n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;split_out_mfa&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;MFA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\r\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}]),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MFA&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+               &lt;span class=&quot;s&quot;&gt;&amp;quot;(.*):(.*)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;((.*)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*.&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;*$&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+               &lt;span class=&quot;p&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;capture&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ungreedy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;list_to_atom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;list_to_atom&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;F&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args_to_terms&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;args_to_terms&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RawArgs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Toks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;erl_scan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;[&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;RawArgs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;]. &amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;erl_parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;parse_term&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Toks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;Args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;p&gt;这段代码是最核心的部分，首先是实现gen_server的行为，包括
+&lt;code&gt;init/1,handle_call/3,handle_info/2,handle_cast/2,terminate/2,code_change/3&lt;/code&gt;这六个函数。&lt;/p&gt;
+
+&lt;h3 id=&quot;init1&quot;&gt;init/1函数&lt;/h3&gt;
+
+&lt;p&gt;当执行&lt;code&gt;gen_server:start/4&lt;/code&gt;函数时，init/1函数会被调用，这里初始化一个socket监听网络上的tcp请求。init/1函数需要返回一个元
+组， 形如{ok,State,Timeout}.State表示服务器的状态，Timeout为设置的超时时间，超时可以省略，为０时表示立即触发一个超时，即
+立即处理当前邮箱里的消息。&lt;/p&gt;
+
+&lt;h3 id=&quot;handlecall3&quot;&gt;handle_call/3函数&lt;/h3&gt;
+
+&lt;p&gt;这个函数只能用于处理服务器内部的消息调用，State表示服务器当前状态，与之前初始化时的State相对应，但在调用过程中可以改变
+它，_From表示发送请求的客户端的进程PID，通常需要一个返回值，{reply,Reply,NewState}，NewState为服务器接下来的状态，Reply
+为发送给客户端的消息,这里的第一个参数(get_count)是一个消息匹配,可以是一个原子，也可以是一个元组。也可以设置为{noreply,..}和{stop,…}，但相对不常用。noreply会让服务器继续工作，但客户端需要一个回
+复消息，因此必须把回复任务委派给其他进程。用适当的参数调用stop会停止服务器。这个函数的作用是实现远程过程调用。&lt;/p&gt;
+
+&lt;h3 id=&quot;handlecast2&quot;&gt;handle_cast/2函数&lt;/h3&gt;
+
+&lt;p&gt;这个函数用于实现播发，也就是没有返回值的调用（异步调用）。第一个参数(这里是stop)是一个消息匹配，State表示服务器状态。这
+个函数的返回值一般为{noreply,NewState}或{stop,…}。前者改变服务器状态，后者停止服务器。&lt;/p&gt;
+
+&lt;h3 id=&quot;handleinfo2&quot;&gt;handle_info/2函数&lt;/h3&gt;
+
+&lt;p&gt;这个函数用于处理发送给服务器的自发性消息，即所有未经显示调用gen_server:call或gen_server:cast而到达服务器的消息，例如浏览
+器访问服务器时产生的HTTP请求等，因此所有知道通用服务器PID的进程都能向它发送消息。第一个参数为一个消息匹配，第二个参数为
+服务器的状态。它的返回值与handle_cast/2函数相同。&lt;/p&gt;
+
+&lt;h3 id=&quot;terminate2&quot;&gt;terminate/2函数&lt;/h3&gt;
+
+&lt;p&gt;当某个handle_开头的函数返回一个{stop,Reason,NewState}，或者服务器自身崩溃产生了一个{‘EXIT’,reason}时，无论它们是怎样发生
+的，都会调用terminate/2函数。返回值为ok.&lt;/p&gt;
+
+&lt;h3 id=&quot;codechange3&quot;&gt;code_change/3函数&lt;/h3&gt;
+
+&lt;p&gt;你可以在服务器运行时更改它的状态。这个回调函数会在系统执行软件升级时由版本处理子系统调用。返回值为{ok,State}.&lt;/p&gt;
+
+&lt;h3 id=&quot;dorpc2&quot;&gt;do_rpc/2函数&lt;/h3&gt;
+
+&lt;p&gt;第一个参数为客户端Socket，第二个参数为接收到的消息。将接收到的消息使用split_out_mfa/1函数分离出消息中的
+Module,Function,Arguments存入{M,F,A},并使用apply(M,F,A)在服务器上执行这个函数，最后向客户端发送执行消息的结果（或异常）。&lt;/p&gt;
+
+&lt;h3 id=&quot;splitoutmfa1&quot;&gt;split_out_mfa/1函数&lt;/h3&gt;
+
+&lt;p&gt;先前说过，这个函数用于分离出消息中的Module,Function,Arguments信息，例如&lt;code&gt;io:format(&quot;Hello World~n&quot;)&lt;/code&gt;,分离出的结果中
+Module,Function,Arguments的值分别是io,format,”Hello World~n”三个值。使用re模块中的run方法提取，最后返回一个元组，其中第
+一个和第二个元素是一个原子。第三个参数是一个列表。&lt;/p&gt;
+
+&lt;h3 id=&quot;argstoterms1&quot;&gt;args_to_terms/1函数&lt;/h3&gt;
+
+&lt;p&gt;这个函数处理参数部分，并返回一个列表。&lt;/p&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;这段代码加入了测试，添加测试需要&#39;-include_lib(&quot;eunit/include/eunit.hrl&quot;).&#39;，然后编写一个测试
+函数，此处为start_test/0函数。然后在Erlang Shell中使用`tr_server:test().`或
+`eunit:test(tr_server).`来进行测试。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;h3 id=&quot;trsuperl&quot;&gt;tr_sup.erl&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_sup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;behaviour&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;supervisor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;define&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;SERVER&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MODULE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nn&quot;&gt;supervisor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;local&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;SERVER&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;MODULE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[]).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;Server&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[]},&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;permanent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;worker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;Children&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;RestartStrategy&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;one_for_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;RestartStrategy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Children&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;p&gt;标准的监控器代码，当进程tr_server崩溃时，监控器会重启一个tr_server进程。实现一个监控器只需要实现supervisor行为模式，并实
+现start_link/0,init/1方法即可。&lt;/p&gt;
+
+&lt;h3 id=&quot;startlink0&quot;&gt;start_link/0函数&lt;/h3&gt;
+
+&lt;p&gt;启动一个监控器。&lt;/p&gt;
+
+&lt;h3 id=&quot;init1-1&quot;&gt;init/1函数&lt;/h3&gt;
+
+&lt;p&gt;初始化监控器，这个函数需要返回一个元组
+{ok,{RestartStrategy,MaxRestarts,Time},{Tag,{Mod,Func,ArgList},Restart,Shutdown,Type,[Mod1]}}。下面来一一解释。&lt;/p&gt;
+
+&lt;h4 id=&quot;restartstrategy&quot;&gt;RestartStrategy&lt;/h4&gt;
+
+&lt;p&gt;这是重启策略，可选的值有one_for_one,one_for_all,simple_one_for_one,rest_for_all，
+首先说one_for_one，使用这种策略时，如果一个子进程停止，则只重启该子进程。其次是one_for_all，使用这种策略时，如果一个子进
+程停止，则其他子进程也停止，然后全部重启。然后是rest_for_one，使用这种策略时，如果一个子进程停止，那么启动顺序在它之后的
+所有其他子进程也将停止，然后停止的这些进程重启。最后是simple_one_for_one，这种是简化的one_for_one supervisor，使用这种策
+略要求它的子进程必须全是同样类型的子进程并且是动态添加的实例，例如：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;simple_one_for_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;，此时当supervisor启动时不会
+启动任何子进程，只能通过代码动态添加子进程：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;nn&quot;&gt;supervisor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start_child&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Sup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Sup是supervisor的pid或name,List是任意一个term列表，将会动态添加到子规范的参数列表。如果启动方法指定为{M,F,A}，则子进程是
+通过调用apply(M,F,A++List)来启动（）。&lt;/p&gt;
+
+&lt;h4 id=&quot;maxrestarts--time&quot;&gt;MaxRestarts &amp;amp;&amp;amp; Time&lt;/h4&gt;
+
+&lt;p&gt;最大重启频率，即如果在最近的Time秒之内有超过MaxRestarts次数的重启，则supervisor停止它本身和它所有的子进程，当supervisor
+停止后，下一个更高级别的supervisor（它的父监控器）进行下一步动作，重启该停止的supervisor或者终止本身，重启机制的意图是防
+止一个进程由于某些原因重复性的死掉。&lt;/p&gt;
+
+&lt;h4 id=&quot;tag&quot;&gt;Tag&lt;/h4&gt;
+
+&lt;p&gt;用来让supervisor内部识别子规范的名字，是一个原子类型的标签，可以用它指代工作进程。&lt;/p&gt;
+
+&lt;h4 id=&quot;modfuncarglist&quot;&gt;{Mod,Func,ArgList}&lt;/h4&gt;
+
+&lt;p&gt;指启动子进程的方法,分别是模块，函数，参数列表。该函数应该调用supervisor、gen_server、gen_event、gen_fsm其中之一的start_link
+函数。&lt;/p&gt;
+
+&lt;h4 id=&quot;restart&quot;&gt;Restart&lt;/h4&gt;
+
+&lt;p&gt;可选的值有&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;permanent&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;永久进程，表示子进程始终会被重启&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;transient&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;临时进程，表示子进程决不重启&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;temporary&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;过渡进程，表示只有在子进程异常终止时才重启，即除了normal以外的终止原因&lt;/p&gt;
+
+&lt;h4 id=&quot;shutdown&quot;&gt;Shutdown&lt;/h4&gt;
+
+&lt;p&gt;这是关闭时间。也就是工作器终止过程允许耗费的最长时间。如果超过这个时间，工作进程就会被杀掉。&lt;/p&gt;
+
+&lt;p&gt;可选的值有&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;brutal_kill&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;表示子进程使用exit(Child,kill)来无条件的终止，终止之前不用做任何清理工作&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;一个整数的timeout值表示supervisor告诉子进程通过调用exit(Child,shutdown)来终止，然后等待一个exit信号返回，如果没有在指
+定时间内接收到exit信号，则子进程使用exit(Child,kill)来无条件终止&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果子进程是另一个supervisor，它应该设置为infinity来给子树足够的时间来停止&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;type&quot;&gt;Type&lt;/h4&gt;
+
+&lt;p&gt;可选值为worker和supervisor，表示子进程是一个工作进程还是一个监控器&lt;/p&gt;
+
+&lt;h4 id=&quot;mod1&quot;&gt;[Mod1]&lt;/h4&gt;
+
+&lt;p&gt;一个列表含有一个元素Mod1，
+如果子进程是一个supervisor,gen_server或gen_fsm则Mod1是冋调模块的名字，
+如果子进程是一个gen_event，则MODULES(即[Mod1])应该为dynamic
+该信息用来在升级和降级时供release handler使用&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;所有解释到此为止，最后要注意，代码中的Children列表中的子进程启动是按定义时的顺序先后启动，终止时是
+倒序终止！
+supervisor是Erlang/OTP中很重要的部分，虽然代码量很少，但是其中的参数设置却是十分讲究的，必须要好
+好掌握。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;h3 id=&quot;trapperl&quot;&gt;tr_app.erl&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;behaviour&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;ni&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]).&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;StartType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;StartArgs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tr_sup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;start_link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; 
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Pid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;Other&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;Other&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;nf&quot;&gt;stop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(_&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;p&gt;这部分最简单，就是一个简单的应用启动模块。使用&lt;code&gt;application:start(tcp_rpc).&lt;/code&gt;来启动我们这个应用，它会打开一个监控器，然后
+监控器打开其他的子进程。这里的tcp_rpc是下面tcp_rpc.app的文件名。要启动应用，就必须要编写相应的app文件。&lt;/p&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;h3 id=&quot;tcprpcapp&quot;&gt;tcp_rpc.app&lt;/h3&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-erlang&quot; data-lang=&quot;erlang&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tcp_rpc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;RPC server for Erlang in OTP and actions&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vsn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;1.0&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;modules&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;tr_sup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;tr_server&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;registered&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_sup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;applications&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kernel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stdlib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,[]}}]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+&lt;p&gt;这是启动应用的配置文件，application的值为应用的名称，此处为tcp_rpc；description为应用的描述，当应用被加载时，使用
+&lt;code&gt;application:loaded_applications().&lt;/code&gt;可以查看该描述；vsn为版本号；modules为模块列表；registered为注册模块的列表；
+applications为加载的应用程序；mod的作用尚不清楚，应该是表示启动模块。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;注意：这个应用开启后很危险，因为它可以接收远程的Erlang函数调用，这意味着当应用端口开启时，外部程序
+可以发送Erlang代码修改服务器的内容，删除服务器的文件！
+
+到此结束!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;======================================================================================&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>Erlang的编译和运行</title>
