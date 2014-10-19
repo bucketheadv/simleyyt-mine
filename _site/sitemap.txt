@@ -9,8 +9,10 @@ http://sven199109.github.io/rss.xml
 http://sven199109.github.io/search.html
 http://sven199109.github.io/sitemap.txt
 http://sven199109.github.io/tags.html
+http://sven199109.github.io/2/index.html
 
 http://sven199109.github.io/erlang/2014/10/19/erlang-otp-rpcserver
+http://sven199109.github.io/erlang/2014/10/10/erlang-install-in-centos
 http://sven199109.github.io/erlang/2014/10/06/erlang-makefile
 http://sven199109.github.io/erlang/2014/09/27/erlang-lists
 http://sven199109.github.io/git/2014/09/13/git_use_method

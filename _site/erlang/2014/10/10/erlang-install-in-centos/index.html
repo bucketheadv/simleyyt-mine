@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	
+	<title>CentOS yum安装erlang</title>
+    
+	
+	<meta name="author" content="Sven Liu">
+	
+	<link rel="stylesheet" href="/assets/themes/Snail/css/jquery.fancybox.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/main.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/pages/journal.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/team.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/static.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/css/errors.css">
+	<link rel="stylesheet" href="/assets/themes/Snail/google-code-prettify/prettify.css">
+	
+	<link rel="shortcut icon" href="/assets/themes/Snail/img/favicon.ico">
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/jquery.min.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/js/auto_loadmore.js"></script>
+	
+	<script type="text/javascript" src="/assets/themes/Snail/google-code-prettify/prettify.js"></script>
+	
+	<script type="text/javascript">
+	  $(function(){
+		$("pre code").addClass("prettyprint linenums");
+		prettyPrint();
+	  });
+	</script>
+	
+<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- atom & rss feed -->
+    <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
+    <link href="/rss.xml" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
+</head>
+<body>
+	<noscript>
+		&amp;lt;div id="no-js"&amp;gt;Please enable JavaScript in your browser to experience / fully&amp;lt;/div&amp;gt;
+	</noscript>
+    <div id="page-container">
+		<div>
+			<nav>
+	<div id="nav-l">
+	</div>
+	<div id="nav-c">
+		<ul id="nav-list" style="width: 700px;">
+			<li id="home"><a href="/">Home</a></li>
+			
+			
+			
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "About Me"><a href="/about.html">About Me</a></li>
+					
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Archive"><a href="/archive.html">Archive</a></li>
+					
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Categories"><a href="/categories.html">Categories</a></li>
+					
+				  
+				
+			 
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+				
+			 
+				
+				  
+					
+					<li id = "Tags"><a href="/tags.html">Tags</a></li>
+					
+				  
+				
+			 
+				
+			 
+			
+			
+		</ul>
+		<form id="nav-search" method="GET" action="/search.html">
+			<div id="search-right-pix">
+				<div id="search-left-pix">
+					<div id="search-center-pix">
+						<div id="search-icon-pix"></div>
+						<input name="query" type="text" placeholder="Search">
+					</div>
+				</div>
+			</div>
+		</form>
+		
+		
+	</div>
+	<div id="nav-r">
+	</div>
+</nav>
+			<div id="page-content">
+				
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
+
+<a href="/categories.html#erlang-ref" title="erlang">
+	erlang
+
+</a>
+</div>
+				
+				</div>
+			</div>
+			<div class="journal-body">
+				<h1 class="journal-title">CentOS yum安装erlang<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<p>先前不知道如何在centos下使用yum安装erlang,傻呵呵地编译源码,结果遇到各种包不全的问题。</p>
+
+<!--more-->
+
+<h2 id="erlang-solutions-key">添加Erlang Solutions key支持</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">rpm</span> <span class="o">--</span><span class="n">import</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//binaries.erlang-solutions.com/debian/erlang_solutions.asc</span></code></pre></div>
+
+<h2 id="erlangrepoetcyumreposd">将erlang的repo文件添加到/etc/yum.repos.d/下</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">wget</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//binaries.erlang-solutions.com/rpm/centos/erlang_solutions.repo</span>
+<span class="n">mv</span> <span class="n">erlang_solutions</span><span class="p">.</span><span class="n">repo</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">yum</span><span class="p">.</span><span class="n">repos</span><span class="p">.</span><span class="n">d</span><span class="o">/</span></code></pre></div>
+
+<h2 id="rpmforge64">添加RPMforge支持(64位)</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">wget</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm</span></code></pre></div>
+
+<h2 id="key">导入key</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">rpm</span> <span class="o">--</span><span class="n">import</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//apt.sw.be/RPM-GPG-KEY.dag.txt</span></code></pre></div>
+
+<h2 id="rpmforge">安装RPMforge</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">rpm</span> <span class="o">-</span><span class="n">i</span> <span class="n">rpmforge</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="mf">0.5.2</span><span class="o">-</span><span class="mf">2.</span><span class="n">el6</span><span class="p">.</span><span class="n">rf</span><span class="p">.</span><span class="o">*</span><span class="p">.</span><span class="n">rpm</span></code></pre></div>
+
+<h2 id="section">更新并安装</h2>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">yum</span> <span class="n">update</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="n">esl</span><span class="o">-</span><span class="n">erlang</span></code></pre></div>
+
+<h3 id="section-1"><code>安装到此完成了！下面就可以编码确认一下了！</code></h3>
+<p>网上问了一下大神，他给了一个更简单的方案：</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">yum</span> <span class="n">epel</span><span class="o">*</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="n">erlang</span></code></pre></div>
+
+<p>这种方法其实是用以下方法:</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">rpm</span> <span class="o">-</span><span class="n">ivh</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span>
+<span class="n">rpm</span> <span class="o">--</span><span class="n">import</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">pki</span><span class="o">/</span><span class="n">rpm</span><span class="o">-</span><span class="n">gpg</span><span class="o">/</span><span class="n">RPM</span><span class="o">-</span><span class="n">GPG</span><span class="o">-</span><span class="n">KEY</span><span class="o">-</span><span class="n">EPEL</span><span class="o">-</span><span class="mi">6</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="n">yum</span><span class="o">-</span><span class="n">priorities</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="n">erlang</span></code></pre></div>
+
+<p>此时确实可以用<code>yum install erlang</code>了,这种方式安装的包其实更全,最好使用这种方式安装。</p>
+
+				</span>
+				<div class="journal-date">Published 10 October 2014</div>
+				<div class="journal-tags">
+				
+				
+	 
+		<a class="tag-cont" href="/tags.html#Erlang-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">Erlang</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#CentOS-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">CentOS</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#yum-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">yum</div>
+			<div class="tag-r"></div>
+		</a>
+	
+
+
+
+				</div>
+			</div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/erlang/2014/10/10/erlang-install-in-centos"  data-title="CentOS yum安装erlang - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+	<div class="clearboth"></div>
+</div>
+
+			</div>
+			<div class="clearboth pagebottom"></div>
+		</div>
+	</div>
+	<footer>
+	<div class="footer-940">
+		<div class="footer-general-info">
+			© 2014 Sven Liu.<br><br>
+			Content licensed under:<br>
+			<a class="cc" href="http://creativecommons.org/licenses/by-sa/3.0/">c a b</a><br>
+			<a href = "/about.html">About Me</a><br>
+		</div>
+		<div class="footer-col-cont">
+			<div class="footer-nav-col">
+				<h4><a>Categories</a></h4>
+				<ul>
+					
+					
+
+
+  
+     
+    	<li><a href="/categories.html#erlang-ref">
+    		erlang <span>5</span>
+    	</a></li>
+     
+    	<li><a href="/categories.html#git-ref">
+    		git <span>1</span>
+    	</a></li>
+    
+  
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Pages</a></h4>
+				<ul>
+					
+					
+					
+
+
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/about.html">About Me</a></li>
+      	
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+    
+  
+
+
+
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Feed</a></h4>
+				<ul>
+					<li><a href="/atom.xml">Atom Feed</a></li>
+					<li><a href="/rss.xml">RSS Feed</a></li>
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a>Links</a></h4>
+				<ul>
+				 
+					<li><a href = "http://sven199109.github.io/">Sven's Blog</a></li>
+				
+				</ul>
+			</div>
+			<div class="footer-nav-col">
+				<h4><a href = "/about.html">About Me</a></h4>
+				<ul>
+				 
+					<li><a href = "mailto:sven199109@gmail.com">e-mail</a></li>
+				 
+					<li><a href = "https://github.com/sven199109">Github</a></li>
+				 
+					<li><a href = "http://www.weibo.com/u/1282853260">WeiBo</a></li>
+				
+				</ul>
+			</div>
+			<div class="clearboth"></div>
+		</div>
+		<div class="clearboth"></div>
+	</div>
+	<div class="clearboth"></div>
+</footer>
+	
+</body>
+</html>
+
