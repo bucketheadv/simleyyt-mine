@@ -4,7 +4,7 @@
  <title>斯文的个人小站</title>
  <link href="http://sven199109.github.io/" rel="self"/>
  <link href="http://sven199109.github.io"/>
- <updated>2014-11-30T16:05:33+08:00</updated>
+ <updated>2014-11-30T23:29:48+08:00</updated>
  <id>http://sven199109.github.io</id>
  <author>
    <name>Sven Liu</name>
@@ -393,7 +393,13 @@ applications为加载的应用程序；mod的作用尚不清楚，应该是表�
 &lt;span class=&quot;n&quot;&gt;yum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;yum&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;priorities&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;yum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;erlang&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;此时确实可以用&lt;code&gt;yum install erlang&lt;/code&gt;了,这种方式安装的包其实更全,最好使用这种方式安装。&lt;/p&gt;
+&lt;p&gt;此时确实可以用&lt;code&gt;yum install erlang&lt;/code&gt;了,这种方式安装的包其实更全,最好使用这种方式安装，但是这种方式安装的不是最新版，而是R14B版本，要安装otp17版本的还要用以下方式：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;n&quot;&gt;wget&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rpm&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Uvh&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;erlang&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;solutions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;noarch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rpm&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;yum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;erlang&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;等待安装完成，打开erlang shell 可以看到版本号已经为17了。&lt;/p&gt;
 </content>
  </entry>
  

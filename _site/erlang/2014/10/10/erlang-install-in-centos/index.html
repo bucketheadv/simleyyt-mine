@@ -197,7 +197,13 @@
 <span class="n">yum</span> <span class="n">install</span> <span class="n">yum</span><span class="o">-</span><span class="n">priorities</span>
 <span class="n">yum</span> <span class="n">install</span> <span class="n">erlang</span></code></pre></div>
 
-<p>此时确实可以用<code>yum install erlang</code>了,这种方式安装的包其实更全,最好使用这种方式安装。</p>
+<p>此时确实可以用<code>yum install erlang</code>了,这种方式安装的包其实更全,最好使用这种方式安装，但是这种方式安装的不是最新版，而是R14B版本，要安装otp17版本的还要用以下方式：</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">wget</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm</span>
+<span class="n">rpm</span> <span class="o">-</span><span class="n">Uvh</span> <span class="n">erlang</span><span class="o">-</span><span class="n">solutions</span><span class="o">-</span><span class="mf">1.0</span><span class="o">-</span><span class="mf">1.</span><span class="n">noarch</span><span class="p">.</span><span class="n">rpm</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="n">erlang</span></code></pre></div>
+
+<p>等待安装完成，打开erlang shell 可以看到版本号已经为17了。</p>
 
 				</span>
 				<div class="journal-date">Published 10 October 2014</div>
