@@ -55,4 +55,10 @@ rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
 yum install yum-priorities
 yum install erlang
 {% endhighlight %}
-此时确实可以用`yum install erlang`了,这种方式安装的包其实更全,最好使用这种方式安装。
+此时确实可以用`yum install erlang`了,这种方式安装的包其实更全,最好使用这种方式安装，但是这种方式安装的不是最新版，而是R14B版本，要安装otp17版本的还要用以下方式：
+{% highlight c %}
+wget http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+yum install erlang
+{% endhighlight %}
+等待安装完成，打开erlang shell 可以看到版本号已经为17了。
