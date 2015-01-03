@@ -4,13 +4,56 @@
  <title>斯文的个人小站</title>
  <link href="http://sven199109.github.io/" rel="self"/>
  <link href="http://sven199109.github.io"/>
- <updated>2014-11-30T23:29:48+08:00</updated>
+ <updated>2015-01-03T19:39:21+08:00</updated>
  <id>http://sven199109.github.io</id>
  <author>
    <name>Sven Liu</name>
    <email></email>
  </author>
 
+ 
+ <entry>
+   <title>Go环境安装</title>
+   <link href="http://sven199109.github.io/go/2015/01/03/golang-install"/>
+   <updated>2015-01-03T00:00:00+08:00</updated>
+   <id>http://sven199109.github.io/go/2015/01/03/golang-install</id>
+   <content type="html">&lt;p&gt;Erlang不打算再深入下去了,因为适用面太窄再加上没有相关经验很难再转入行，最近打算把Java复习并提高一下，然后开始主攻Go语言。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;安装&lt;/h2&gt;
+&lt;p&gt;直接apt-get(或yum) install golang，但可能需要先将golang库添加到apt-get(yum)源，并update。安装后的文件夹在&lt;code&gt;/usr/lib/go&lt;/code&gt;(
+可能不一样),但如果不在，可以执行&lt;code&gt;locate&lt;/code&gt;或&lt;code&gt;find&lt;/code&gt;命令查找它。&lt;/p&gt;
+
+&lt;h2 id=&quot;gocode&quot;&gt;设置gocode库&lt;/h2&gt;
+&lt;p&gt;gocode库用于下载golang的相关应用，我们在执行&lt;code&gt;go get -u url&lt;/code&gt;时所下载的目标文件夹，这个文件夹很重要，我将它放在~/gocode文件
+夹下。打开&lt;code&gt;/etc/profile&lt;/code&gt;文件，在最后加入&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;GOPATH=~/gocode&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;PATH=$PATH:$GOPATH/bin&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;保存文件，在shell执行&lt;code&gt;source /etc/profile&lt;/code&gt;，然后我们就可以执行&lt;code&gt;go get&lt;/code&gt;命令来下载相关文件了。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;配置开发环境&lt;/h2&gt;
+&lt;p&gt;无论是liteide或者idea intellij，感觉还是用起来不顺手，于是着手安装emacs的go-mode。emacs默认是没有go-mode的，因此需要安装
+它的依赖包。shell执行&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;nv&quot;&gt;apt-get&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;golang-mode&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;gocode-auto-complete-el&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;go&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;-u&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;github.com/nsf/gocode&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;cp&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$GOPATH/src/github.com/nsf/gocode/emacs/go-autocomplete.el&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;~/.emacs.d/&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;打开~/.emacs文件加入以下几行&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;go-mode-load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;go-autocomplete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;auto-complete-config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;需要注意的是，需要auto-complete插件的支持，即是需要安装它，由于该插件先前已安装，所以不在此处阐释它。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;到此为止，环境配置算是完成了，使用emacs编辑go文件可以看到它已经可以为我们做到补全代码的功能了。
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+ </entry>
  
  <entry>
    <title>基于Erlang/OTP的rpc服务器</title>
@@ -154,7 +197,7 @@ Module,Function,Arguments的值分别是io,format,”Hello World~n”三个值�
 
 &lt;p&gt;======================================================================================&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;这段代码加入了测试，添加测试需要&#39;-include_lib(&quot;eunit/include/eunit.hrl&quot;).&#39;，然后编写一个测试
+&lt;pre&gt;&lt;code&gt;这段代码加入了测试，添加测试需要'-include_lib(&quot;eunit/include/eunit.hrl&quot;).'，然后编写一个测试
 函数，此处为start_test/0函数。然后在Erlang Shell中使用`tr_server:test().`或
 `eunit:test(tr_server).`来进行测试。
 &lt;/code&gt;&lt;/pre&gt;

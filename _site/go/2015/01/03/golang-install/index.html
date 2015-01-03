@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	
-	<title>Categories</title>
+	<title>Go环境安装</title>
     
 	
 	<meta name="author" content="Sven Liu">
@@ -82,11 +82,7 @@
 				
 				  
 					
-					<li  id = "Categories" class="active">
-					<span class="nav-l-active"></span>
-					<a href="/categories.html" class="active">Categories</a>
-					<span class="nav-r-active"></span>
-					</li>
+					<li id = "Categories"><a href="/categories.html">Categories</a></li>
 					
 				  
 				
@@ -136,155 +132,118 @@
 </nav>
 			<div id="page-content">
 				
-<div class="page-title-inline">
-	<h1>Categories 
-</div>
-<div class="cont932">
-	<hr style="margin-top: 0;">
-	<div class="contentarea">
-		<div class="ca-center ca-center20t nobg">
-			<div class="journal-tags" id="teaminfo">
-			  
-			   
-	<div class="journal-cat-box">
-
-<a href="/categories.html#erlang-ref" title="erlang">
-	erlang
-
-</a>
-</div>
- 
-	<div class="journal-cat-box">
-
-<a href="/categories.html#git-ref" title="git">
-	git
-
-</a>
-</div>
- 
-	<div class="journal-cat-box">
+<div id="page-content">
+	<div class="cont932">
+	<div id="journal-articles-block">
+		<div class="journal-article">
+			<div class="journal-post-info">
+				<div class="journal-cat-box">
+				
+				
+				<div class="journal-cat-box">
 
 <a href="/categories.html#go-ref" title="go">
 	go
 
 </a>
 </div>
-
-
-			</div>
-			<div class="clearboth"></div>
-			<hr>
-			<div>
-			 
-
-			<div  class="team-member">
-			  <h2 id="erlang-ref">erlang</h2>
-			  <ul>
-				  
 				
-
-
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/10/19/erlang-otp-rpcserver">基于Erlang/OTP的rpc服务器</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/10/10/erlang-install-in-centos">CentOS yum安装erlang</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/10/06/erlang-makefile">Erlang的编译和运行</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/09/27/erlang-lists">Erlang列表编程</a></li>
-      	
-      
-    
-  
-    
-      
-      	
-      	<li><a href="/erlang/2014/09/12/Erlang_Concurrent_program">Erlang的并发编程</a></li>
-      	
-      
-    
-  
-
-
-
-			  </ul>
+				</div>
 			</div>
-			 
+			<div class="journal-body">
+				<h1 class="journal-title">Go环境安装<span class="author">by Sven</span>
+				</h1>
+				<span class="the-article">
+				<p>Erlang不打算再深入下去了,因为适用面太窄再加上没有相关经验很难再转入行，最近打算把Java复习并提高一下，然后开始主攻Go语言。</p>
 
-			<div  class="team-member">
-			  <h2 id="git-ref">git</h2>
-			  <ul>
-				  
+<!--more-->
+
+<h2 id="section">安装</h2>
+<p>直接apt-get(或yum) install golang，但可能需要先将golang库添加到apt-get(yum)源，并update。安装后的文件夹在<code>/usr/lib/go</code>(
+可能不一样),但如果不在，可以执行<code>locate</code>或<code>find</code>命令查找它。</p>
+
+<h2 id="gocode">设置gocode库</h2>
+<p>gocode库用于下载golang的相关应用，我们在执行<code>go get -u url</code>时所下载的目标文件夹，这个文件夹很重要，我将它放在~/gocode文件
+夹下。打开<code>/etc/profile</code>文件，在最后加入</p>
+
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp"><span class="nb">export</span> <span class="nv">GOPATH=~/gocode</span>
+<span class="nb">export</span> <span class="nv">PATH=$PATH:$GOPATH/bin</span></code></pre></div>
+
+<p>保存文件，在shell执行<code>source /etc/profile</code>，然后我们就可以执行<code>go get</code>命令来下载相关文件了。</p>
+
+<h2 id="section-1">配置开发环境</h2>
+<p>无论是liteide或者idea intellij，感觉还是用起来不顺手，于是着手安装emacs的go-mode。emacs默认是没有go-mode的，因此需要安装
+它的依赖包。shell执行</p>
+
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp"><span class="nv">apt-get</span> <span class="nv">install</span> <span class="nv">golang-mode</span> <span class="nv">gocode-auto-complete-el</span>
+<span class="k">go</span> <span class="nb">get</span> <span class="nv">-u</span> <span class="nv">github.com/nsf/gocode</span>
+<span class="nv">cp</span> <span class="nv">$GOPATH/src/github.com/nsf/gocode/emacs/go-autocomplete.el</span> <span class="nv">~/.emacs.d/</span></code></pre></div>
+
+<p>打开~/.emacs文件加入以下几行</p>
+
+<div class="highlight"><pre><code class="language-lisp" data-lang="lisp"><span class="p">(</span><span class="nb">require</span> <span class="ss">&#39;go-mode-load</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">require</span> <span class="ss">&#39;go-autocomplete</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">require</span> <span class="ss">&#39;auto-complete-config</span><span class="p">)</span></code></pre></div>
+
+<p><strong>需要注意的是，需要auto-complete插件的支持，即是需要安装它，由于该插件先前已安装，所以不在此处阐释它。</strong></p>
+
+<pre><code>到此为止，环境配置算是完成了，使用emacs编辑go文件可以看到它已经可以为我们做到补全代码的功能了。
+</code></pre>
+
+				</span>
+				<div class="journal-date">Published 03 January 2015</div>
+				<div class="journal-tags">
 				
-
-
-  
-    
-      
-      	
-      	<li><a href="/git/2014/09/13/git_use_method">Git那些事儿</a></li>
-      	
-      
-    
-  
-
-
-
-			  </ul>
-			</div>
-			 
-
-			<div  class="team-member">
-			  <h2 id="go-ref">go</h2>
-			  <ul>
-				  
 				
+	 
+		<a class="tag-cont" href="/tags.html#go-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">go</div>
+			<div class="tag-r"></div>
+		</a>
+	 
+		<a class="tag-cont" href="/tags.html#golang-ref">
+			<div class="tag-l"></div>
+			<div class="tag-c">golang</div>
+			<div class="tag-r"></div>
+		</a>
+	
 
 
-  
-    
-      
-      	
-      	<li><a href="/go/2015/01/03/golang-install">Go环境安装</a></li>
-      	
-      
-    
-  
 
-
-
-			  </ul>
+				</div>
 			</div>
-			
-			
-			</div>
-			<div class="clearboth"></div>
 		</div>
+		<div class="clearboth"></div>
 	</div>
+</div>
+	<div class="clearboth"></div>
+	
+
+
+  <!-- 多说评论框 start -->
+<div id="comments">
+    <div class="ds-thread" data-thread-key="/go/2015/01/03/golang-install"  data-title="Go环境安装 - 斯文的个人小站"></div>
+</div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"simpleyyt"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+
 	<div class="clearboth"></div>
 </div>
-<div class="clearboth"></div>
 
 			</div>
 			<div class="clearboth pagebottom"></div>
@@ -361,7 +320,7 @@
     
       
       	
-      	<li class="active"><a href="/categories.html" class="active">Categories</a></li>
+      	<li><a href="/categories.html">Categories</a></li>
       	
       
     
