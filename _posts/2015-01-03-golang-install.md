@@ -40,3 +40,12 @@ cp $GOPATH/src/github.com/nsf/gocode/emacs/go-autocomplete.el ~/.emacs.d/
 **需要注意的是，需要auto-complete插件的支持，即是需要安装它，由于该插件先前已安装，所以不在此处阐释它。**
 
     到此为止，环境配置算是完成了，使用emacs编辑go文件可以看到它已经可以为我们做到补全代码的功能了。
+
+##1月14日更新
+上述安装后，其实问题有很多，我们现在实现了Go代码的高亮显示了，但是它并不稳定，如果想要构建更好的IDE，还需要重新处理很多东西，emacs这边缺少的文件大多没有成功找到，于是将vim配置了一下，感觉用起来还不错。以下附上方法：
+
+**安装Vundle插件**
+Vundle插件是一个插件管理工具，可以在https://github.com/gmarik/Vundle.vim上下载它,上面拥有完整的安装教程，此处不再阐述。通过Vundle安装的插件很方便管理，以后将vim配置移植到别的机器上时直接拷贝.vimrc配置文件然后执行插件安装就可以了，不用再花工夫进行一一配置。
+
+**Golang vim插件**
+Golang的vim插件有一个套装，即gocode+godef+goimports+gotags，详细安装方式可以通过网上查找，此处不详加说明。
