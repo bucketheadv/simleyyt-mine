@@ -15,10 +15,15 @@ tags: [Ruby, 元编程，钩子方法]
 ##什么是钩子方法
 
 钩子方法是一种在程序运行时扩展程序的行为。可以理解为它是一个条件触发器，当满足这个条件时，执行对应的回调方法。Ruby中常见的钩子方法有以下几个：
+
 ###1、included
+
 ###2、extended
+
 ###3、prepended
+
 ###4、inherited
+
 ###5、method_missing
 
 ##included
